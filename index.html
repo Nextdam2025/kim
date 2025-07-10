@@ -2,83 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Valenveras – Cannabis Test Report Builder</title>
+  <title>Debug Report Builder</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
     :root {
       --bg:#dff2fd; --primary:#1e3d59; --accent:#64a60a;
-      --text:#1e3d59; --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
+      --text:#1e3d59; --font:sans-serif;
     }
-    * { box-sizing:border-box; font-family:var(--font) }
-    body { margin:0; padding:1rem; background:var(--bg); color:var(--text) }
-    #container { max-width:880px; margin:auto }
-    .card { background:#fff; border-radius:8px; padding:1rem 1.25rem; margin:1rem 0;
-            box-shadow:0 2px 8px rgba(0,0,0,0.1) }
-    .step-badge { display:inline-block; background:var(--primary); color:#fff;
-                  border-radius:50%; width:26px; height:26px; text-align:center;
-                  line-height:26px; margin-right:.5rem; font-weight:600 }
-    .field { margin-bottom:.8rem }
-    .field label { display:block; font-weight:600; margin-bottom:.3rem }
+    *{box-sizing:border-box;font-family:var(--font)}
+    body{margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+    #container{max-width:800px;margin:auto}
+    .card{background:#fff;border-radius:6px;padding:1rem;margin:1rem 0;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+    .btn{background:var(--primary);color:#fff;border:none;padding:.5rem 1rem;border-radius:4px;cursor:pointer}
+    .btn:disabled{opacity:.5;cursor:default}
+    #uploader{border:2px dashed var(--primary);padding:2rem;text-align:center;border-radius:6px;background:#fff;cursor:pointer}
+    #uploader.dragover{background:rgba(30,61,89,.1)}
+    #report-card{display:none;background:#fff;padding:1rem;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.1);margin:2rem 0}
+    .field{margin-bottom:.75rem}
+    .field label{display:block;font-weight:600;margin-bottom:.25rem}
     .field input[type="text"],
-    .field input[type="file"] {
-      width:100%; padding:.5rem; border:2px solid var(--primary);
-      border-radius:6px; font-size:1rem;
-    }
-    .btn { background:var(--primary); color:#fff; border:none;
-           padding:.6rem 1.25rem; border-radius:6px;
-           font-weight:600; cursor:pointer; margin-top:.5rem }
-    .btn:disabled { opacity:.5; cursor:default }
-
-    #uploader {
-      border:2px dashed var(--primary); padding:2.5rem 1rem;
-      text-align:center; border-radius:8px; margin-top:.5rem; background:#fff;
-      cursor:pointer;
-    }
-    #uploader.dragover { background:rgba(30,61,89,0.1) }
-
-    #report-card { background:#fff; width:800px; margin:2rem auto;
-                   border-radius:12px; padding:1.5rem;
-                   box-shadow:0 4px 14px rgba(0,0,0,0.15) }
-    header.report-header { display:flex; align-items:center; justify-content:space-between }
-    header.report-header img.logo { height:60px; object-fit:contain }
-    h1.title { margin:0; font-size:2rem; text-align:center; line-height:1.1 }
-    h1.title small { display:block; font-size:1rem; font-weight:normal }
-    #report-date { text-align:center; margin:.5rem 0 1rem; font-weight:500 }
-    .divider { height:2px; background:var(--primary); margin:1rem 0 }
-    .info-grid { display:flex; justify-content:space-between; gap:1rem }
-    .info-grid .info-text p { margin:.3rem 0 }
-    .info-grid img.sample-photo { max-width:180px; border-radius:6px }
-    h2.section-title { margin-bottom:.5rem; color:var(--primary) }
-    table { width:100%; border-collapse:collapse; margin-bottom:1rem }
-    th, td { padding:.6rem; border:1px solid #e0e0e0 }
-    th { background:var(--primary); color:#fff; text-align:left }
-    .disclaimer { font-size:.85rem; line-height:1.4; margin-top:1rem }
-    .qr { text-align:center; margin-top:1rem }
-    .no-print { text-align:center; margin-top:1rem }
-    @media print { .no-print { display:none!important } }
+    .field input[type="file"]{width:100%;padding:.5rem;border:1px solid var(--primary);border-radius:4px}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{border:1px solid #ddd;padding:.5rem}
+    th{background:var(--primary);color:#fff;text-align:left}
+    .no-print{margin:1rem 0;text-align:center}
   </style>
-
-  <!-- LIBRARIES -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.6.0/docx.umd.js"></script>
 </head>
 <body>
   <div id="container">
+
     <!-- STEP 1 -->
     <section id="step1" class="card">
-      <h3><span class="step-badge">1</span>Customer & Sample</h3>
+      <h2>1) Customer & Sample</h2>
       <div class="field">
         <label for="custName">Dispensary Name</label>
         <input id="custName" type="text" placeholder="e.g. De Kruidenier">
       </div>
       <div class="field">
         <label for="custLogo">Dispensary Logo</label>
-        <input id="custLogo" type="file" accept="image/png,image/jpeg">
+        <input id="custLogo" type="file" accept="image/*">
       </div>
       <div class="field">
         <label for="sampleID">Sample ID</label>
@@ -88,49 +50,61 @@
         <label for="sampleName">Sample Name</label>
         <input id="sampleName" type="text" placeholder="e.g. Blue Haze">
       </div>
-      <button id="toStep2" class="btn" disabled>Next → Upload Lab File</button>
+      <div class="field">
+        <label for="samplePhoto">Sample Photo</label>
+        <input id="samplePhoto" type="file" accept="image/*">
+      </div>
+      <button id="toStep2" class="btn" disabled>Next →</button>
     </section>
 
     <!-- STEP 2 -->
     <section id="step2" class="card" hidden>
-      <h3><span class="step-badge">2</span>Upload Lab Data (PDF/CSV/XLSX)</h3>
+      <h2>2) Upload Lab File</h2>
       <div id="uploader">
         <input id="fileInput" type="file" hidden multiple accept=".pdf,.csv,.xls,.xlsx">
-        <p><strong>Drag & drop</strong> lab files or <a href="#" id="browseLink">browse</a></p>
+        <p><strong>Drag &amp; drop</strong> PDF/CSV/XLSX here<br>or <a href="#" id="browseLink">browse</a></p>
       </div>
     </section>
 
     <!-- REPORT -->
-    <article id="report-card" hidden></article>
+    <section id="report-card">
+      <h2>Report Preview</h2>
+      <div id="report-content"></div>
+      <div class="no-print">
+        <button id="dlHtml" class="btn">Download HTML</button>
+        <button id="dlPdf"  class="btn">Download PDF</button>
+      </div>
+    </section>
 
-    <!-- DOWNLOAD -->
-    <div class="no-print">
-      <button id="dlHtml" class="btn" hidden>⬇ Download HTML</button>
-      <button id="dlPdf"  class="btn" hidden>⬇ Download PDF</button>
-      <button id="dlDocx" class="btn" hidden>⬇ Download Word</button>
-    </div>
   </div>
+
+  <!-- LIBRARIES -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     const $ = sel => document.querySelector(sel);
     window.labData = {};
 
-    // STEP 1 → enable Next only when all three are non-empty
+    // Step 1 → enable Next only when all three fields are filled
     ['#custName','#sampleID','#sampleName'].forEach(id => {
       $(id).addEventListener('input', () => {
-        $('#toStep2').disabled = !(
-          $('#custName').value.trim() &&
-          $('#sampleID').value.trim() &&
-          $('#sampleName').value.trim()
-        );
+        const ok = $('#custName').value.trim() &&
+                   $('#sampleID').value.trim() &&
+                   $('#sampleName').value.trim();
+        $('#toStep2').disabled = !ok;
       });
     });
     $('#toStep2').addEventListener('click', () => {
+      console.log('Step 1 complete');
       $('#step1').hidden = true;
       $('#step2').hidden = false;
     });
 
-    // STEP 2 UI
+    // Step 2 UI: drag/drop + browse
     $('#browseLink').addEventListener('click', e => {
       e.preventDefault(); $('#fileInput').click();
     });
@@ -141,194 +115,112 @@
     });
     ['dragleave','drop'].forEach(ev => {
       $('#uploader').addEventListener(ev, e => {
-        e.preventDefault(); $('#uploader').classList.remove('dragover');
+        e.preventDefault();
+        $('#uploader').classList.remove('dragover');
         if (ev === 'drop') handleFiles(e.dataTransfer.files);
       });
     });
-    $('#fileInput').addEventListener('change', e => handleFiles(e.target.files));
+    $('#fileInput').addEventListener('change', e => {
+      handleFiles(e.target.files);
+    });
 
-    // File parsers
+    // Parsers
     const ext = f => f.name.split('.').pop().toLowerCase();
-    const parseCSV = f => new Promise((res, rej) =>
+    const parseCSV = f => new Promise((res,rej) =>
       Papa.parse(f, { header:true, skipEmptyLines:true, complete:res, error:rej })
     );
-    const parseXLSX = f => new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload = e => {
+    const parseXLSX = f => new Promise((res,rej) => {
+      const r = new FileReader();
+      r.onload = e => {
         const wb = XLSX.read(e.target.result, { type:'binary' });
         res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
       };
-      reader.onerror = rej;
-      reader.readAsBinaryString(f);
+      r.onerror = rej;
+      r.readAsBinaryString(f);
     });
     async function parsePDF(f){
       const pdf = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
-      let text = '';
+      let txt = '';
       for (let i=1; i<=pdf.numPages; i++){
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(item => item.str).join(' ') + '\\n';
+        const pg = await pdf.getPage(i);
+        const content = await pg.getTextContent();
+        txt += content.items.map(it=>it.str).join(' ') + '\\n';
       }
       const data = {};
-      (text.match(/([A-Za-z ]+?)[:=]\\s*([0-9\\.\\,]+)/g) || [])
+      (txt.match(/([A-Za-z ]+?)[:=]\\s*([0-9\\.\\,]+)/g) || [])
         .forEach(pair => {
-          const [ , name, val ] = pair.match(/(.+?)[:=]\\s*([0-9\\.\\,]+)/);
-          data[name.trim()] = val.replace(',', '.');
+          const [,k,v] = pair.match(/(.+?)[:=]\\s*([0-9\\.\\,]+)/);
+          data[k.trim()] = v.replace(',', '.');
         });
       return data;
     }
 
     async function handleFiles(files){
-      const arr = [...files];
-      let data = {};
-      const fcsv = arr.find(f=> ext(f)==='csv'),
-            fxls = arr.find(f=> ['xls','xlsx'].includes(ext(f))),
-            fpdf = arr.find(f=> ext(f)==='pdf');
-      if (fcsv) data = (await parseCSV(fcsv))[0];
-      else if (fxls) data = (await parseXLSX(fxls))[0];
-      else if (fpdf) data = await parsePDF(fpdf);
-      else return alert('Please upload a PDF, CSV or XLSX file.');
-      window.labData = data;
-      buildReport(data);
+      console.log('Files dropped/selected:', files);
+      let d = {};
+      const arr = Array.from(files);
+      const fcsv = arr.find(f=>ext(f)==='csv'),
+            fxls = arr.find(f=>['xls','xlsx'].includes(ext(f))),
+            fpdf = arr.find(f=>ext(f)==='pdf');
+      if (fcsv) d = (await parseCSV(fcsv))[0];
+      else if (fxls) d = (await parseXLSX(fxls))[0];
+      else if (fpdf) d = await parsePDF(fpdf);
+      else {
+        return alert('Please upload a PDF, CSV or XLSX.');
+      }
+
+      console.log('Parsed lab data:', d);
+      window.labData = d;
+      renderReport(d);
     }
 
-    function buildReport(d){
-      const logoFile = $('#custLogo').files[0];
-      const logoURL = logoFile
-        ? URL.createObjectURL(logoFile)
-        // ALTERNATIVE: if you prefer not to upload each time, just drop logo.jpeg next to this HTML
-        // and uncomment the next line:
-        // : 'logo.jpeg';
-        : null;
+    function renderReport(d){
+      console.log('Rendering report...');
+      const infoHTML = `
+        <h3>Dispensary:</h3>
+        <p>${$('#custName').value}</p>
+        <h3>Sample ID:</h3>
+        <p>${$('#sampleID').value}</p>
+        <h3>Sample Name:</h3>
+        <p>${$('#sampleName').value}</p>`;
 
-      const photoFile = $('#samplePhoto')?.files?.[0];
-      const photoURL  = photoFile ? URL.createObjectURL(photoFile) : null;
+      const rows = Object.entries(d).map(
+        ([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`
+      ).join('');
 
-      const info = {
-        'Dispensary': $('#custName').value.trim(),
-        'Sample ID':   $('#sampleID').value.trim(),
-        'Sample Name': $('#sampleName').value.trim()
-      };
-
-      const card = $('#report-card');
-      card.innerHTML = `
-        <header class="report-header">
-          ${logoURL? `<img class="logo" src="${logoURL}" alt="Logo">` : ''}
-          <h1 class="title">CANNABIS TEST REPORT<br><small>By Valenveras</small></h1>
-          <!-- embedded Valenveras logo as Base64 -->
-          <img class="logo" src="data:image/jpeg;base64,${`/* YOUR BASE64 STRING HERE */`}" alt="Valenveras">
-        </header>
-        <div id="report-date">${new Date().toLocaleDateString('en-GB',{
-          day:'2-digit',month:'short',year:'numeric'
-        })}</div>
-        <div class="divider"></div>
-        <div class="info-grid">
-          <div class="info-text">
-            ${Object.entries(info).map(([k,v])=>
-              `<p><strong>${k}:</strong> ${v||'---'}</p>`
-            ).join('')}
-          </div>
-          ${photoURL? `<img class="sample-photo" src="${photoURL}" alt="Sample Photo">` : ''}
-        </div>
-        <div class="divider"></div>
-        <h2 class="section-title">LAB RESULTS</h2>
+      const reportHTML = `
+        ${infoHTML}
+        <h3>Lab Results</h3>
         <table>
           <tr><th>Field</th><th>Value</th></tr>
-          ${Object.entries(d).map(([k,v])=>
-            `<tr><td>${k}</td><td>${v}</td></tr>`
-          ).join('')}
-        </table>
-        <div class="divider"></div>
-        <footer class="disclaimer">
-          <strong>Disclaimer:</strong> Indicative only. Not certified for legal, medical, or commercial use.
-        </footer>
-        <div id="qrContainer" class="qr"></div>
-      `;
+          ${rows}
+        </table>`;
 
-      new QRCode($('#qrContainer'), {
-        text: `https://nextdam2025.github.io/kim/${info['Sample ID']}.html`,
-        width:100, height:100
-      });
-
-      card.hidden = false;
-      $('#dlHtml').hidden = false;
-      $('#dlPdf').hidden  = false;
-      $('#dlDocx').hidden = false;
+      $('#report-content').innerHTML = reportHTML;
+      $('#report-card').style.display = 'block';
+      $('#dlHtml').disabled = false;
+      $('#dlPdf').disabled = false;
     }
 
-    // DOWNLOAD buttons
+    // Download HTML
     $('#dlHtml').addEventListener('click', ()=>{
-      const sid = $('#sampleID').value.trim() || 'report';
-      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${sid}</title>
+      const html = `
+        <!DOCTYPE html><html><head><meta charset="utf-8"><title>Report</title>
         <style>${document.querySelector('head style').innerHTML}</style></head>
-        <body>${$('#report-card').outerHTML}</body></html>`;
+        <body>${document.getElementById('report-content').outerHTML}</body></html>`;
       const blob = new Blob([html], { type:'text/html' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = sid + '.html';
+      a.download = `${$('#sampleID').value || 'report'}.html`;
       a.click();
     });
 
+    // Download PDF
     $('#dlPdf').addEventListener('click', ()=>{
-      const sid = $('#sampleID').value.trim() || 'report';
-      html2pdf().set({
-        margin:[0.5,0.5,0.5,0.5],
-        filename: sid + '.pdf',
-        html2canvas:{scale:2,useCORS:true},
-        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-      }).from($('#report-card')).save();
-    });
-
-    $('#dlDocx').addEventListener('click', async ()=>{
-      const { Packer, Document, Paragraph, Table, TableRow, TableCell, HeadingLevel } = docx;
-      const data = window.labData;
-      const doc = new Document({ sections:[{ children:[
-
-        new Paragraph({ text:'CANNABIS TEST REPORT', heading:HeadingLevel.TITLE }),
-        new Paragraph({ text:`By Valenveras` }),
-        new Paragraph({ text: new Date().toISOString().slice(0,10) }),
-        new Paragraph({ text:'' }),
-
-        new Paragraph({ text:'Sample Information', heading:HeadingLevel.HEADING_1 }),
-        new Table({ rows:[
-          ...Object.entries({
-            'Dispensary': $('#custName').value.trim(),
-            'Sample ID':   $('#sampleID').value.trim(),
-            'Sample Name': $('#sampleName').value.trim()
-          }).map(([k,v])=>
-            new TableRow({ children:[
-              new TableCell({ children:[ new Paragraph(k) ] }),
-              new TableCell({ children:[ new Paragraph(v) ] })
-            ]})
-          )
-        ]}),
-
-        new Paragraph({ text:'' }),
-        new Paragraph({ text:'Lab Results', heading:HeadingLevel.HEADING_1 }),
-        new Table({ rows:[
-          new TableRow({ children:[
-            new TableCell({ children:[ new Paragraph({ text:'Field', bold:true }) ] }),
-            new TableCell({ children:[ new Paragraph({ text:'Value', bold:true }) ] })
-          ]}),
-          ...Object.entries(data).map(([k,v])=>
-            new TableRow({ children:[
-              new TableCell({ children:[ new Paragraph(k) ] }),
-              new TableCell({ children:[ new Paragraph(String(v)) ] })
-            ]})
-          )
-        ]}),
-
-        new Paragraph({ text:'' }),
-        new Paragraph({ text:'Disclaimer', heading:HeadingLevel.HEADING_1 }),
-        new Paragraph({ text:'Indicative only. Not certified for legal, medical, or commercial use.' })
-
-      ]}]});
-
-      const blob = await Packer.toBlob(doc);
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `${$('#sampleID').value.trim() || 'report'}.docx`;
-      link.click();
+      html2pdf().from($('#report-content')).set({
+        margin:0.5, filename:`${$('#sampleID').value||'report'}.pdf`,
+        html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4'}
+      }).save();
     });
   </script>
 </body>
