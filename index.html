@@ -92,205 +92,184 @@
     <button onclick="downloadPDF()">Download PDF</button>
   </div>
 <script>
-const FIELDS = {
-  Company: ["Company"],
-  MaterialName: ["Material Name", "Material"],
-  SampleID: ["Sample ID", "SampleId", "SampleID", "ID", "Sample"],
-  LotName: ["Lot name", "Lot Name", "Lot"],
-  DeviceID: ["Device Id", "Device ID", "DeviceId"],
-  SupplierName: ["Supplier name", "Supplier Name"],
-  CreatedBy: ["Created By", "Created by", "Contact", "Contactpersoon", "Contact Name", "Created on behalf of"],
-  CreatedAt: ["Created at", "Created At", "Date", "Datum", "Test Date"],
-  Location: ["Location"],
-  THCTotal: ["Thc Total", "THC Total", "Total THC", "THC (%)", "THCtotal", "ThcTotal"],
-  THCa: ["Thca", "THCa", "THC-Acid", "THCA"],
-  CBDTotal: ["Cbd Total", "CBD Total", "Total CBD", "CBD (%)", "CBDtotal"],
-  CBDa: ["Cbda", "CBDa", "CBD-Acid", "CBDA"],
-  CBGTotal: ["Cbg Total", "CBG Total", "Total CBG", "CBG (%)", "CBGtotal"],
-  TotalTerpenes: ["Total Terpenes", "Terpenes Total", "Totale Terpenen"],
-  Limonene: ["Limonene"],
-  BCaryophyllene: ["B-caryophyllene", "B-Caryophyllene", "Beta Caryophyllene"],
-  GElemene: ["G-elemene", "G-Elemene", "Gelemene"],
-  BMyrcene: ["B-mircene", "B-Myrcene", "Beta Myrcene"],
-  Linalool: ["Linalool"],
-  AHumulene: ["A-humulene", "A-Humulene", "Alpha Humulene"],
-  Eudesma: ["Eudesma"],
-  BPinene: ["B-pinene", "B-Pinene", "Beta Pinene"],
-  APinene: ["A-pinene", "A-Pinene", "Alpha Pinene"],
-  Terpinolene: ["Terpinolene"],
-  Moisture: ["Moisture"],
-  aW: ["Aw", "aW"]
+/* ── configuration ───────────────────────────────────────── */
+
+const DEBUG = false;           // ← set true to see raw rows in console
+
+const FIELD_MAP = {
+  SampleID       : ["Sample ID","SampleId","Sample","ID"],
+  SampleName     : ["Sample Name","Material Name","SampleName","Material"],
+  DeviceID       : ["Device ID","DeviceId","Device","Device Id"],
+  Company        : ["Company","Organisation","Organization","Bedrijf"],
+  SupplierName   : ["Supplier Name","Supplier"],
+  CreatedBy      : ["Created By","Contact","Contactpersoon"],
+  CreatedAt      : ["Created At","Created at","Date","Datum","Test Date"],
+  LotName        : ["Lot Name","Lot","Batch"],
+  Location       : ["Location","GPS","Locatie"],
+
+  THCTotal       : ["THC Total","Thc Total","Total THC","THC (%)","ThcTotal"],
+  THCa           : ["THCa","Thca","THC-A","THC-Acid"],
+  CBDTotal       : ["CBD Total","Cbd Total","Total CBD","CBD (%)","CbdTotal"],
+  CBDa           : ["CBDa","Cbda","CBD-A","CBD-Acid"],
+  CBGTotal       : ["CBG Total","Cbg Total","Total CBG"],
+  TotalTerpenes  : ["Total Terpenes","Terpenes Total"],
+
+  Limonene       : ["Limonene"],
+  BCaryophyllene : ["B-Caryophyllene","B-Caryophyllene","β-Caryophyllene"],
+  GElemene       : ["G-Elemene","G-Elemene"],
+  BMyrcene       : ["B-Myrcene","B-Myrcene","β-Myrcene"],
+  Linalool       : ["Linalool"],
+  AHumulene      : ["A-Humulene","A-Humulene","α-Humulene"],
+  Eudesma        : ["Eudesma"],
+  BPinene        : ["B-Pinene","B-Pinene","β-Pinene"],
+  APinene        : ["A-Pinene","A-Pinene","α-Pinene"],
+  Terpinolene    : ["Terpinolene"],
+
+  Moisture       : ["Moisture","Moisture Content"],
+  aW             : ["aW","Aw","Water Activity"]
 };
-function normalize(str) { return String(str||"").replace(/[\s_\-\.%:]/gi,"").toLowerCase(); }
-function extractPdfText(file, cb) {
-  pdfjsLib.getDocument({data:file}).promise.then(async pdf=>{
-    let text = '';
-    for(let i=1;i<=pdf.numPages;i++) {
-      let page = await pdf.getPage(i);
-      let content = await page.getTextContent();
-      text += content.items.map(item=>item.str).join("\n") + "\n";
-    }
-    cb(text);
-  });
+
+/* ── utilities ───────────────────────────────────────────── */
+
+const norm = s => String(s||"")
+  .replace(/[\s_\-\.%:]/g,"")
+  .replace(/β|α/gi,"b")        // greek letters → latin for match
+  .toLowerCase();
+
+function valueClean(v){
+  if(v==null) return "";
+  return String(v).replace(/[—–-]/g,"").replace(/%/g,"").trim();
 }
-function pdfTextToObj(text) {
-  const out = {};
-  // Extract header info
-  const headerRegex = /(\w[\w\s]+):\s*(.+)/g;
-  let m;
-  while ((m = headerRegex.exec(text)) !== null) {
-    const key = m[1].trim(), val = m[2].trim();
-    for (const f in FIELDS) for (const variant of FIELDS[f]) {
-      if (normalize(key) === normalize(variant)) out[f] = val;
+
+/* ── mapping core ────────────────────────────────────────── */
+
+function mapRows(rows){
+  const out={};
+
+  rows.forEach(r=>{
+    // case 1: classic vertical row [key , value , …]
+    if(Array.isArray(r) && r.length>1){
+      const key = norm(r[0]);
+      const val = valueClean(r[1]);
+      for(const f in FIELD_MAP)
+        if(FIELD_MAP[f].some(a=>key===norm(a))) out[f]=val;
+      return;
     }
-  }
-  // Extract result table
-  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l.length);
-  let inTable = false;
-  lines.forEach((line,i)=>{
-    // "Parameter Result Unit Range"
-    if (/^Parameter\s+Result/i.test(line)) { inTable = true; return; }
-    if (inTable && line.match(/^\w/)) {
-      let parts = line.split(/\s+/);
-      if(parts.length>=2){
-        let key = parts[0]+" "+(parts[1]||"");
-        let val = parts[2]||parts[1];
-        // Try also using the whole line for terpenes (e.g. "B-mircene 0 % ...")
-        for(const f in FIELDS) for(const variant of FIELDS[f]) {
-          if(normalize(parts[0]) === normalize(variant) ||
-             normalize(key) === normalize(variant)) {
-            let v = parts[1];
-            if(!isNaN(parseFloat(v))) out[f]=v;
-            else if(!isNaN(parseFloat(parts[2]))) out[f]=parts[2];
-          }
-        }
-      }
+
+    // case 2: single-cell with colon  "Company: Valenveras Demo"
+    if(Array.isArray(r) && r.length===1 && r[0].includes(":")){
+      const [k , ...rest] = r[0].split(":");
+      const key = norm(k);
+      const val = valueClean(rest.join(":"));
+      for(const f in FIELD_MAP)
+        if(FIELD_MAP[f].some(a=>key===norm(a))) out[f]=val;
+      return;
     }
+
+    // case 3: horizontal header row followed by data row
+    // handled later after parsing
   });
-  // Special: for lines like "THC Total 22.77 % ..." etc.
-  lines.forEach((line)=>{
-    let m = line.match(/^([A-Za-z\-\_ ]+)\s+([0-9\.]+)\s*\%?/);
-    if (m) {
-      let key = m[1].trim(), val = m[2].trim();
-      for (const f in FIELDS) for (const variant of FIELDS[f]) {
-        if (normalize(key) === normalize(variant)) out[f]=val;
-      }
-    }
+
+  return out;
+}
+
+function mapHorizontal(headerRow,dataRow){
+  const out={};
+  headerRow.forEach((h,i)=>{
+    const key = norm(h);
+    for(const f in FIELD_MAP)
+      if(FIELD_MAP[f].some(a=>key===norm(a))) out[f]=valueClean(dataRow[i]);
   });
   return out;
 }
-function fillReport(obj) {
-  // Date
-  let today = new Date();
-  document.getElementById('ReportDate').innerText =
-    obj.CreatedAt || today.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  // Sample info
-  let sampleHtml = `
-    <div class="sample-info-row"><span class="sample-info-label">Sample ID:</span>
-      <span class="sample-info-value">${obj.SampleID||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Sample Name</span>
-      <span class="sample-info-value">${obj.MaterialName||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Device ID</span>
-      <span class="sample-info-value">${obj.DeviceID||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Contact</span>
-      <span class="sample-info-value">${obj.CreatedBy||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Company</span>
-      <span class="sample-info-value">${obj.Company||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Supplier</span>
-      <span class="sample-info-value">${obj.SupplierName||""}</span></div>
-    <div class="sample-info-row"><span class="sample-info-label">Location</span>
-      <span class="sample-info-value">${obj.Location||""}</span></div>
-  `;
-  document.getElementById('sample-info').innerHTML = sampleHtml;
 
-  // Cannabinoids table
-  const canna = [
-    ["THC Total", obj.THCTotal||""],
-    ["THCa", obj.THCa||""],
-    ["CBD Total", obj.CBDTotal||""],
-    ["CBDa", obj.CBDa||""],
-    ["CBG Total", obj.CBGTotal||""],
-    ["Total Terpenes", obj.TotalTerpenes||""]
-  ];
-  document.getElementById('cannabinoids-table').innerHTML =
-    "<tr><th>Parameter</th><th>Result (%)</th></tr>" +
-    canna.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+/* ── populate DOM ────────────────────────────────────────── */
 
-  // Terpenes
-  const terpColors = {
-    "BMyrcene":"t-brown","Limonene":"t-green","Linalool":"t-purple","APinene":"t-blue","BCaryophyllene":"t-highlight"
-  };
-  const terps = [
-    ["BMyrcene", obj.BMyrcene||""],
-    ["Limonene", obj.Limonene||""],
-    ["Linalool", obj.Linalool||""],
-    ["APinene", obj.APinene||""],
-    ["BCaryophyllene", obj.BCaryophyllene||""],
-    ["GElemene", obj.GElemene||""],
-    ["BPinene", obj.BPinene||""],
-    ["AHumulene", obj.AHumulene||""],
-    ["Eudesma", obj.Eudesma||""],
-    ["Terpinolene", obj.Terpinolene||""]
-  ];
-  let maxVal = Math.max(...terps.map(r=>parseFloat(r[1])||0));
-  document.getElementById('terpenes-table').innerHTML =
-    "<tr><th>Terpene</th><th>Result (%)</th><th></th></tr>" +
-    terps.map(([t,v])=>{
-      let pct = maxVal ? ((parseFloat(v)||0)/maxVal*100) : 0;
-      let bar = v ? `<div class="terpene-bar-bg"><div class="terpene-bar-fill ${terpColors[t]||""}" style="width:${pct}%;"></div></div>` : "";
-      return `<tr>
-        <td class="terpene-label">${t.replace("BMyrcene","B-Myrcene").replace("APinene","A-Pinene").replace("BCaryophyllene","B-Caryophyllene")}</td>
-        <td>${v||""}</td>
-        <td>${bar}</td>
-      </tr>`;
-    }).join("");
+function fillHTML(obj){
+  for(const id in FIELD_MAP){
+    const td=document.getElementById(id);
+    if(td) td.textContent=obj[id]||"";
+  }
+  // date at top
+  document.getElementById('ReportDate').textContent=
+      obj.CreatedAt ||
+      new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 
-  // Moisture
-  document.getElementById('moisture-table').innerHTML =
-    "<tr><th>Parameter</th><th>Result</th></tr>" +
-    [["Moisture",obj.Moisture||""],["aW",obj.aW||""]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+  // cannabinoids table already uses static IDs in HTML; nothing to do
+  // same for moisture / terpenes -> they read the td textContent
 
-  // QR code
-  document.getElementById('qr').innerHTML = "";
+  // regenerate QR
+  document.getElementById('qr').innerHTML="";
   new QRious({
-    element: Object.assign(document.createElement("canvas"), {width:100, height:100}),
-    value: JSON.stringify(obj),
-    size: 100
+    element:Object.assign(document.createElement("canvas"),{width:100,height:100}),
+    value:JSON.stringify(obj),
+    size:100
   }).appendTo(document.getElementById('qr'));
 }
 
-document.getElementById('pdf-input').addEventListener('change',function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    extractPdfText(new Uint8Array(ev.target.result), function(text){
-      const obj = pdfTextToObj(text);
-      fillReport(obj);
+/* ── file handlers ───────────────────────────────────────── */
+
+document.getElementById('file-input').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+
+  if(/\.csv$/i.test(f.name)){
+    Papa.parse(f,{
+      complete(res){
+        if(DEBUG) console.table(res.data.slice(0,15));
+        processRows(res.data);
+      }
     });
-  };
-  reader.readAsArrayBuffer(file);
-});
-document.getElementById('img-input').addEventListener('change',function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const img = document.getElementById('SampleImage');
-    img.src = ev.target.result;
-    img.style.display = 'block';
+  }else if(/\.(xls|xlsx)$/i.test(f.name)){
+    const fr=new FileReader();
+    fr.onload=ev=>{
+      const wb=XLSX.read(ev.target.result,{type:'binary'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+      if(DEBUG) console.table(rows.slice(0,15));
+      processRows(rows);
+    };
+    fr.readAsBinaryString(f);
   }
-  reader.readAsDataURL(file);
 });
-function downloadPDF() {
+
+function processRows(rows){
+  rows = rows.filter(r=>Array.isArray(r)&&r.some(c=>String(c).trim()));
+  if(!rows.length){ alert("No rows detected"); return; }
+
+  /* detect horizontal layout */
+  if(!/parameter/i.test(rows[0][0]) && rows.length>1 && rows[0].length===rows[1].length){
+    const obj = mapHorizontal(rows[0],rows[1]);
+    fillHTML(obj);
+    return;
+  }
+
+  /* default vertical mapping */
+  if(/parameter/i.test(rows[0][0])) rows.shift();   // skip header
+  const obj = mapRows(rows);
+  fillHTML(obj);
+}
+
+/* ── image & PDF export (unchanged) ─────────────────────── */
+
+document.getElementById('img-input').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
+    const img=document.getElementById('SampleImage');
+    img.src=ev.target.result; img.style.display='block';
+  };
+  fr.readAsDataURL(f);
+});
+
+function downloadPDF(){
   html2pdf(document.getElementById('report-card'),{
     margin:0,
     filename:"Valenveras-Report.pdf",
-    html2canvas:{ scale:2, useCORS: true },
-    image: { type: 'jpeg', quality: 0.98 },
-    jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+    html2canvas:{scale:2,useCORS:true},
+    image:{type:'jpeg',quality:0.98},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   });
 }
 </script>
+
 </body>
 </html>
