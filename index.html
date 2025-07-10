@@ -52,12 +52,6 @@
     table { width:100%; border-collapse:collapse; margin-bottom:1rem }
     th, td { padding:.6rem; border:1px solid #e0e0e0 }
     th { background:var(--primary); color:#fff; text-align:left }
-    .terp-row { display:flex; align-items:center; gap:.5rem; margin:.3rem 0 }
-    .terp-bar { flex:1; height:16px; background:#e0e0e0;
-               border-radius:8px; overflow:hidden; position:relative }
-    .terp-fill { height:100%; border-radius:8px; width:0;
-                 transition:width .6s ease }
-    .terp-val { width:3.5rem; text-align:right; font-weight:600 }
     .disclaimer { font-size:.85rem; line-height:1.4; margin-top:1rem }
     .qr { text-align:center; margin-top:1rem }
     .no-print { text-align:center; margin-top:1rem }
@@ -78,22 +72,22 @@
     <!-- STEP 1 -->
     <section id="step1" class="card">
       <h3><span class="step-badge">1</span>Customer & Sample</h3>
-      <div class="field"><label for="custName">Dispensary Name</label>
-        <input id="custName" type="text" placeholder="e.g. De Kruidenier Cannabis Takeaway"></div>
-      <div class="field"><label for="custLogo">Dispensary Logo</label>
-        <input id="custLogo" type="file" accept="image/png,image/jpeg"></div>
-      <div class="field"><label for="sampleID">Sample ID</label>
-        <input id="sampleID" type="text" placeholder="C-003"></div>
-      <div class="field"><label for="sampleName">Sample Name</label>
-        <input id="sampleName" type="text" placeholder="Blue Haze"></div>
-      <div class="field"><label for="harvestDate">Harvest Date</label>
-        <input id="harvestDate" type="text" placeholder="09-Apr-2025"></div>
-      <div class="field"><label for="plantType">Plant Type</label>
-        <input id="plantType" type="text" placeholder="Sativa Dominant"></div>
-      <div class="field"><label for="floweringTime">Flowering Time</label>
-        <input id="floweringTime" type="text" placeholder="9 Weeks"></div>
-      <div class="field"><label for="samplePhoto">Sample Photo</label>
-        <input id="samplePhoto" type="file" accept="image/png,image/jpeg"></div>
+      <div class="field">
+        <label for="custName">Dispensary Name</label>
+        <input id="custName" type="text" placeholder="e.g. De Kruidenier">
+      </div>
+      <div class="field">
+        <label for="custLogo">Dispensary Logo</label>
+        <input id="custLogo" type="file" accept="image/png,image/jpeg">
+      </div>
+      <div class="field">
+        <label for="sampleID">Sample ID</label>
+        <input id="sampleID" type="text" placeholder="e.g. C-003">
+      </div>
+      <div class="field">
+        <label for="sampleName">Sample Name</label>
+        <input id="sampleName" type="text" placeholder="e.g. Blue Haze">
+      </div>
       <button id="toStep2" class="btn" disabled>Next → Upload Lab File</button>
     </section>
 
@@ -106,10 +100,10 @@
       </div>
     </section>
 
-    <!-- REPORT CARD -->
+    <!-- REPORT -->
     <article id="report-card" hidden></article>
 
-    <!-- DOWNLOAD CONTROLS -->
+    <!-- DOWNLOAD -->
     <div class="no-print">
       <button id="dlHtml" class="btn" hidden>⬇ Download HTML</button>
       <button id="dlPdf"  class="btn" hidden>⬇ Download PDF</button>
@@ -118,71 +112,115 @@
   </div>
 
   <script>
-    const $ = s=>document.querySelector(s);
-    window.labData={};
+    const $ = sel => document.querySelector(sel);
+    window.labData = {};
 
-    // STEP1 → enable Next
-    [ '#custName','#sampleID','#sampleName' ].forEach(sel=>{
-      $(sel).addEventListener('input',()=>{
-        $('#toStep2').disabled=!( $('#custName').value&&$('#sampleID').value&&$('#sampleName').value );
+    // STEP 1 → enable Next only when all three are non-empty
+    ['#custName','#sampleID','#sampleName'].forEach(id => {
+      $(id).addEventListener('input', () => {
+        $('#toStep2').disabled = !(
+          $('#custName').value.trim() &&
+          $('#sampleID').value.trim() &&
+          $('#sampleName').value.trim()
+        );
       });
     });
-    $('#toStep2').onclick=()=>{ $('#step1').hidden=true; $('#step2').hidden=false; };
+    $('#toStep2').addEventListener('click', () => {
+      $('#step1').hidden = true;
+      $('#step2').hidden = false;
+    });
 
-    // STEP2 UI
-    $('#browseLink').onclick=e=>{e.preventDefault();$('#fileInput').click()};
-    $('#uploader').onclick=()=>$('#fileInput').click();
-    ['dragenter','dragover'].forEach(e=>$('#uploader').addEventListener(e,ev=>{ev.preventDefault();$('#uploader').classList.add('dragover')}));
-    ['dragleave','drop'  ].forEach(e=>$('#uploader').addEventListener(e,ev=>{ev.preventDefault();$('#uploader').classList.remove('dragover'); if(e==='drop') handleFiles(ev.dataTransfer.files)}));
-    $('#fileInput').onchange=e=>handleFiles(e.target.files);
-
-    // Parsers
-    const ext=f=>f.name.split('.').pop().toLowerCase();
-    const parseCSV=f=>new Promise((res,rej)=>Papa.parse(f,{header:true,skipEmptyLines:true,complete:res,error:rej}));
-    const parseXLSX=f=>new Promise((res,rej)=>{let r=new FileReader();r.onload=e=>{let wb=XLSX.read(e.target.result,{type:'binary'});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));};r.onerror=rej;r.readAsBinaryString(f);});
-    async function parsePDF(f){
-      let pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise, txt='';
-      for(let p=1;p<=pdf.numPages;p++){let ct=await(pdf.getPage(p)).getTextContent();txt+=ct.items.map(i=>i.str).join(' ')+'\\n';}
-      let data={};
-      // catch any "Name: value" pairs
-      (txt.match(/([A-Za-z ]+?)[:=]\\s*([0-9\\.\\,]+)/g)||[]).forEach(pair=>{
-        let [full,name,val]=pair.split(/[:=]/); data[name.trim()]=val.trim().replace(',', '.');
+    // STEP 2 UI
+    $('#browseLink').addEventListener('click', e => {
+      e.preventDefault(); $('#fileInput').click();
+    });
+    ['dragenter','dragover'].forEach(ev => {
+      $('#uploader').addEventListener(ev, e => {
+        e.preventDefault(); $('#uploader').classList.add('dragover');
       });
+    });
+    ['dragleave','drop'].forEach(ev => {
+      $('#uploader').addEventListener(ev, e => {
+        e.preventDefault(); $('#uploader').classList.remove('dragover');
+        if (ev === 'drop') handleFiles(e.dataTransfer.files);
+      });
+    });
+    $('#fileInput').addEventListener('change', e => handleFiles(e.target.files));
+
+    // File parsers
+    const ext = f => f.name.split('.').pop().toLowerCase();
+    const parseCSV = f => new Promise((res, rej) =>
+      Papa.parse(f, { header:true, skipEmptyLines:true, complete:res, error:rej })
+    );
+    const parseXLSX = f => new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const wb = XLSX.read(e.target.result, { type:'binary' });
+        res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
+      };
+      reader.onerror = rej;
+      reader.readAsBinaryString(f);
+    });
+    async function parsePDF(f){
+      const pdf = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise;
+      let text = '';
+      for (let i=1; i<=pdf.numPages; i++){
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\\n';
+      }
+      const data = {};
+      (text.match(/([A-Za-z ]+?)[:=]\\s*([0-9\\.\\,]+)/g) || [])
+        .forEach(pair => {
+          const [ , name, val ] = pair.match(/(.+?)[:=]\\s*([0-9\\.\\,]+)/);
+          data[name.trim()] = val.replace(',', '.');
+        });
       return data;
     }
 
     async function handleFiles(files){
-      let arr=[...files], data={};
-      let fcsv=arr.find(f=>ext(f)==='csv'), fxls=arr.find(f=>['xls','xlsx'].includes(ext(f))), fpdf=arr.find(f=>ext(f)==='pdf');
-      if(fcsv) data=(await parseCSV(fcsv))[0];
-      else if(fxls) data=(await parseXLSX(fxls))[0];
-      else if(fpdf) data=await parsePDF(fpdf);
+      const arr = [...files];
+      let data = {};
+      const fcsv = arr.find(f=> ext(f)==='csv'),
+            fxls = arr.find(f=> ['xls','xlsx'].includes(ext(f))),
+            fpdf = arr.find(f=> ext(f)==='pdf');
+      if (fcsv) data = (await parseCSV(fcsv))[0];
+      else if (fxls) data = (await parseXLSX(fxls))[0];
+      else if (fpdf) data = await parsePDF(fpdf);
       else return alert('Please upload a PDF, CSV or XLSX file.');
-      window.labData=data;
+      window.labData = data;
       buildReport(data);
     }
 
     function buildReport(d){
-      // logos & photos
-      let logoFile=$('#custLogo').files[0], logoURL=logoFile?URL.createObjectURL(logoFile):null;
-      let photoFile=$('#samplePhoto').files[0], photoURL=photoFile?URL.createObjectURL(photoFile):null;
-      // sample info
-      let info={
-        'Sample ID':$('#sampleID').value.trim(),
-        'Sample Name':$('#sampleName').value.trim(),
-        'Harvest Date':$('#harvestDate').value.trim(),
-        'Plant Type':$('#plantType').value.trim(),
-        'Flowering Time':$('#floweringTime').value.trim()
+      const logoFile = $('#custLogo').files[0];
+      const logoURL = logoFile
+        ? URL.createObjectURL(logoFile)
+        // ALTERNATIVE: if you prefer not to upload each time, just drop logo.jpeg next to this HTML
+        // and uncomment the next line:
+        // : 'logo.jpeg';
+        : null;
+
+      const photoFile = $('#samplePhoto')?.files?.[0];
+      const photoURL  = photoFile ? URL.createObjectURL(photoFile) : null;
+
+      const info = {
+        'Dispensary': $('#custName').value.trim(),
+        'Sample ID':   $('#sampleID').value.trim(),
+        'Sample Name': $('#sampleName').value.trim()
       };
-      // report container
-      let card=$('#report-card');
-      card.innerHTML=`
+
+      const card = $('#report-card');
+      card.innerHTML = `
         <header class="report-header">
-          ${logoURL?`<img class="logo" src="${logoURL}" alt="Logo">`:''}
+          ${logoURL? `<img class="logo" src="${logoURL}" alt="Logo">` : ''}
           <h1 class="title">CANNABIS TEST REPORT<br><small>By Valenveras</small></h1>
-          <img class="logo" src="data:image/jpeg;base64,{{VALENVERAS_LOGO_BASE64}}" alt="Valenveras">
+          <!-- embedded Valenveras logo as Base64 -->
+          <img class="logo" src="data:image/jpeg;base64,${`/* YOUR BASE64 STRING HERE */`}" alt="Valenveras">
         </header>
-        <div id="report-date">${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
+        <div id="report-date">${new Date().toLocaleDateString('en-GB',{
+          day:'2-digit',month:'short',year:'numeric'
+        })}</div>
         <div class="divider"></div>
         <div class="info-grid">
           <div class="info-text">
@@ -190,7 +228,7 @@
               `<p><strong>${k}:</strong> ${v||'---'}</p>`
             ).join('')}
           </div>
-          ${photoURL?`<img class="sample-photo" src="${photoURL}" alt="Sample">`:''}
+          ${photoURL? `<img class="sample-photo" src="${photoURL}" alt="Sample Photo">` : ''}
         </div>
         <div class="divider"></div>
         <h2 class="section-title">LAB RESULTS</h2>
@@ -201,80 +239,97 @@
           ).join('')}
         </table>
         <div class="divider"></div>
-        <footer>
-          <div class="disclaimer">
-            <strong>Disclaimer:</strong> Indicative only. Not certified for legal, medical, or commercial use.
-          </div>
-          <div id="qrContainer" class="qr"></div>
+        <footer class="disclaimer">
+          <strong>Disclaimer:</strong> Indicative only. Not certified for legal, medical, or commercial use.
         </footer>
+        <div id="qrContainer" class="qr"></div>
       `;
 
-      // QR
-      new QRCode($('#qrContainer'),{
-        text:`https://yourdomain.com/reports/${info['Sample ID']}.html`,
+      new QRCode($('#qrContainer'), {
+        text: `https://nextdam2025.github.io/kim/${info['Sample ID']}.html`,
         width:100, height:100
       });
 
-      card.hidden=false;
-      $('#dlHtml').hidden=false;
-      $('#dlPdf').hidden=false;
-      $('#dlDocx').hidden=false;
+      card.hidden = false;
+      $('#dlHtml').hidden = false;
+      $('#dlPdf').hidden  = false;
+      $('#dlDocx').hidden = false;
     }
 
-    // DOWNLOAD: HTML
-    $('#dlHtml').onclick=()=>{
-      let htmlDoc=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${$('#sampleID').value}</title>
+    // DOWNLOAD buttons
+    $('#dlHtml').addEventListener('click', ()=>{
+      const sid = $('#sampleID').value.trim() || 'report';
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${sid}</title>
         <style>${document.querySelector('head style').innerHTML}</style></head>
         <body>${$('#report-card').outerHTML}</body></html>`;
-      let blob=new Blob([htmlDoc],{type:'text/html'}), a=document.createElement('a');
-      a.href=URL.createObjectURL(blob); a.download=`${$('#sampleID').value||'report'}.html`; a.click();
-    };
+      const blob = new Blob([html], { type:'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = sid + '.html';
+      a.click();
+    });
 
-    // DOWNLOAD: PDF
-    $('#dlPdf').onclick=()=> html2pdf().set({
-      margin:0.5, filename:`${$('#sampleID').value}.pdf`,
-      html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4'}
-    }).from($('#report-card')).save();
+    $('#dlPdf').addEventListener('click', ()=>{
+      const sid = $('#sampleID').value.trim() || 'report';
+      html2pdf().set({
+        margin:[0.5,0.5,0.5,0.5],
+        filename: sid + '.pdf',
+        html2canvas:{scale:2,useCORS:true},
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+      }).from($('#report-card')).save();
+    });
 
-    // DOWNLOAD: Word
-    $('#dlDocx').onclick=async()=>{
-      const {{ Packer, Document, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel }} = docx;
-      let doc=new Document({ sections:[{ children:[
+    $('#dlDocx').addEventListener('click', async ()=>{
+      const { Packer, Document, Paragraph, Table, TableRow, TableCell, HeadingLevel } = docx;
+      const data = window.labData;
+      const doc = new Document({ sections:[{ children:[
+
         new Paragraph({ text:'CANNABIS TEST REPORT', heading:HeadingLevel.TITLE }),
         new Paragraph({ text:`By Valenveras` }),
-        new Paragraph({ text:`${new Date().toISOString().slice(0,10)}` }),
+        new Paragraph({ text: new Date().toISOString().slice(0,10) }),
         new Paragraph({ text:'' }),
+
         new Paragraph({ text:'Sample Information', heading:HeadingLevel.HEADING_1 }),
         new Table({ rows:[
           ...Object.entries({
-            'Sample ID':$('#sampleID').value,
-            'Sample Name':$('#sampleName').value,
-            'Harvest Date':$('#harvestDate').value,
-            'Plant Type':$('#plantType').value,
-            'Flowering Time':$('#floweringTime').value
-          }).map(([k,v])=>new TableRow({ children:[
-            new TableCell({ children:[new Paragraph(k)] }),
-            new TableCell({ children:[new Paragraph(v)] })
-          ]}))
+            'Dispensary': $('#custName').value.trim(),
+            'Sample ID':   $('#sampleID').value.trim(),
+            'Sample Name': $('#sampleName').value.trim()
+          }).map(([k,v])=>
+            new TableRow({ children:[
+              new TableCell({ children:[ new Paragraph(k) ] }),
+              new TableCell({ children:[ new Paragraph(v) ] })
+            ]})
+          )
         ]}),
+
         new Paragraph({ text:'' }),
         new Paragraph({ text:'Lab Results', heading:HeadingLevel.HEADING_1 }),
         new Table({ rows:[
           new TableRow({ children:[
-            new TableCell({ children:[new Paragraph({text:'Field',bold:true})] }),
-            new TableCell({ children:[new Paragraph({text:'Value',bold:true})] })
+            new TableCell({ children:[ new Paragraph({ text:'Field', bold:true }) ] }),
+            new TableCell({ children:[ new Paragraph({ text:'Value', bold:true }) ] })
           ]}),
-          ...Object.entries(window.labData).map(([k,v])=>new TableRow({ children:[
-            new TableCell({ children:[new Paragraph(k)] }),
-            new TableCell({ children:[new Paragraph(String(v))] })
-          ]}))
+          ...Object.entries(data).map(([k,v])=>
+            new TableRow({ children:[
+              new TableCell({ children:[ new Paragraph(k) ] }),
+              new TableCell({ children:[ new Paragraph(String(v)) ] })
+            ]})
+          )
         ]}),
+
+        new Paragraph({ text:'' }),
         new Paragraph({ text:'Disclaimer', heading:HeadingLevel.HEADING_1 }),
         new Paragraph({ text:'Indicative only. Not certified for legal, medical, or commercial use.' })
-      ]}] });
-      let blob=await Packer.toBlob(doc), link=document.createElement('a');
-      link.href=URL.createObjectURL(blob); link.download=`${$('#sampleID').value||'report'}.docx`; link.click();
-    };
+
+      ]}]});
+
+      const blob = await Packer.toBlob(doc);
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${$('#sampleID').value.trim() || 'report'}.docx`;
+      link.click();
+    });
   </script>
 </body>
 </html>
