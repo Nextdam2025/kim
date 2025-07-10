@@ -190,19 +190,58 @@ document.getElementById('img-input').addEventListener('change',function(e){
 
 function normalizeKeys(obj) {
   if(!obj) return {};
+  // Add here all common lab header variations mapped to the canonical field
+  const map = {
+    SampleName: ["Sample Name", "SampleName", "Sample", "Naam", "Sample Naam"],
+    MaterialName: ["Material Name", "Material", "MaterialNaam"],
+    SampleID: ["Sample ID", "SampleId", "ID", "Sample"],
+    LotName: ["Lot Name", "Lot", "Batch"],
+    DeviceID: ["Device ID", "DeviceId", "Apparaat"],
+    Company: ["Company", "Bedrijf", "Organization", "Organisatie"],
+    SupplierName: ["Supplier Name", "Supplier", "Leverancier"],
+    CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name"],
+    CreatedAt: ["Created At", "Date", "Datum", "Test Date"],
+    Location: ["Location", "Locatie", "GPS"],
+    // CANNABINOIDS
+    THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal"],
+    THCa: ["THCa", "THC-Acid", "THCA"],
+    CBDTotal: ["CBD Total", "Cbd Total", "Total CBD", "CBD (%)", "CBDtotal"],
+    CBDa: ["CBDa", "CBD-Acid", "CBDA"],
+    CBGTotal: ["CBG Total", "Cbg Total", "Total CBG", "CBG (%)", "CBGtotal"],
+    TotalTerpenes: ["Total Terpenes", "Terpenes Total", "Totale Terpenen"],
+    // TERPENES
+    Limonene: ["Limonene"],
+    BCaryophyllene: ["B-Caryophyllene", "B-caryophyllene", "Beta Caryophyllene"],
+    GElemene: ["G-Elemene", "G-elemene", "Gelemene"],
+    BMyrcene: ["B-Myrcene", "B-mircene", "Beta Myrcene"],
+    Linalool: ["Linalool"],
+    AHumulene: ["A-Humulene", "A-humulene", "Alpha Humulene"],
+    Eudesma: ["Eudesma"],
+    BPinene: ["B-Pinene", "B-pinene", "Beta Pinene"],
+    APinene: ["A-Pinene", "A-pinene", "Alpha Pinene"],
+    Terpinolene: ["Terpinolene"],
+    // MOISTURE
+    Moisture: ["Moisture", "Moisture %", "Vochtigheid"],
+    aW: ["aW", "Aw", "Water Activity", "Wateractiviteit"],
+  };
+
   let out = {};
-  Object.keys(obj).forEach(k=>{
-    let std = k.replace(/[\s_\-\.]/g,'').toLowerCase();
-    for(let f of fields) {
-      if(std === f.replace(/[\s_\-\.]/g,'').toLowerCase()) {
-        out[f] = obj[k];
-        return;
+  for(let std in map) {
+    let found = "";
+    for(let alt of map[std]) {
+      for(let key in obj) {
+        if(key.replace(/[\s_\-\.%]/gi,"").toLowerCase() === alt.replace(/[\s_\-\.%]/gi,"").toLowerCase()) {
+          found = obj[key];
+          break;
+        }
       }
+      if(found!=="") break;
     }
-    out[k] = obj[k];
-  });
+    out[std] = found || "";
+  }
   return out;
 }
+
 
 // Export to PDF
 function downloadPDF() {
