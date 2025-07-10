@@ -144,19 +144,32 @@
     [cname,sid,sname].forEach(el=>el.addEventListener('input', chk1));
     btn2.onclick = ()=> $('#step2').hidden=false;
 
-    // STEP 2 UI
-    const up=$('#uploader'), fileIn=$('#fileInput'), browse=$('#browseLink');
-    browse.onclick = e=>{ e.preventDefault(); fileIn.click() };
-    ['dragenter','dragover'].forEach(ev=>
-      up.addEventListener(ev,e=>{ e.preventDefault(); up.classList.add('dragover') })
-    );
-    ['dragleave','drop'].forEach(ev=>
-      up.addEventListener(ev,e=>{
-        e.preventDefault(); up.classList.remove('dragover');
-        if(ev==='drop') handleFiles(e.dataTransfer.files);
-      })
-    );
-    fileIn.onchange = e=> handleFiles(e.target.files);
+       // STEP 2 UI
+   const up = $('#uploader'),
+         fileIn = $('#fileInput'),
+         browse = $('#browseLink');
+
++  // make the entire uploader clickable
+   browse.onclick = e => { e.preventDefault(); fileIn.click() };
++  up.addEventListener('click', () => fileIn.click());
+
+   ['dragenter','dragover'].forEach(ev =>
+     up.addEventListener(ev, e => {
+       e.preventDefault();
+       up.classList.add('dragover');
+     })
+   );
+   ['dragleave','drop'].forEach(ev =>
+     up.addEventListener(ev, e => {
+       e.preventDefault();
+       up.classList.remove('dragover');
+       if (ev === 'drop') handleFiles(e.dataTransfer.files);
+     })
+   );
+   fileIn.onchange = e => {
++    console.log('File(s) selected:', e.target.files);
+     handleFiles(e.target.files);
+   };
 
     // Parsers
     const ext = f=>f.name.split('.').pop().toLowerCase();
