@@ -139,6 +139,7 @@ const fields = [
   "Limonene","BCaryophyllene","GElemene","BMyrcene","Linalool","AHumulene","Eudesma","BPinene","APinene","Terpinolene",
   "Moisture","aW"
 ];
+
 const FIELD_MAP = {
   SampleName: ["Sample Name", "SampleName", "Sample", "Naam", "Sample Naam"],
   MaterialName: ["Material Name", "Material", "MaterialNaam"],
@@ -147,8 +148,8 @@ const FIELD_MAP = {
   DeviceID: ["Device ID", "DeviceId", "Apparaat"],
   Company: ["Company", "Bedrijf", "Organization", "Organisatie"],
   SupplierName: ["Supplier Name", "Supplier", "Leverancier"],
-  CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name"],
-  CreatedAt: ["Created At", "Date", "Datum", "Test Date"],
+  CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name", "Created on behalf of"],
+  CreatedAt: ["Created At", "Date", "Datum", "Test Date", "Created at"],
   Location: ["Location", "Locatie", "GPS"],
   THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal", "ThcTotal"],
   THCa: ["THCa", "THC-Acid", "THCA"],
@@ -174,7 +175,6 @@ let report = {};
 function normalize(str) {
   return String(str||"").replace(/[\s_\-\.%:]/gi,"").toLowerCase();
 }
-
 function setField(id, val) {
   report[id] = val;
   const cell = document.getElementById(id);
@@ -203,13 +203,11 @@ function fillFields(data) {
   document.getElementById('Location').innerText = data.Location || "";
   drawQR();
 }
-
-// Robust "vertical" (Parameter/Result) mapping
 function mapVertical(rows) {
   let out = {};
   rows.forEach(row=>{
     if (!row || row.length < 2) return;
-    let key = row[0];
+    let key = String(row[0]).trim();
     let val = row[1];
     for (const field in FIELD_MAP) {
       for (const variant of FIELD_MAP[field]) {
@@ -218,27 +216,20 @@ function mapVertical(rows) {
         }
       }
     }
+    // Special handling for PDF/CSV: map "Company", "Material Name", etc from extra text lines (for horizontal info)
+    if (normalize(key) === "company" && !out.Company) out.Company = val;
+    if (normalize(key) === "materialname" && !out.MaterialName) out.MaterialName = val;
+    if (normalize(key) === "sampleid" && !out.SampleID) out.SampleID = val;
+    if (normalize(key) === "createdby" && !out.CreatedBy) out.CreatedBy = val;
+    if (normalize(key) === "createdat" && !out.CreatedAt) out.CreatedAt = val;
+    if (normalize(key) === "deviceid" && !out.DeviceID) out.DeviceID = val;
+    if (normalize(key) === "lotname" && !out.LotName) out.LotName = val;
+    if (normalize(key) === "suppliername" && !out.SupplierName) out.SupplierName = val;
+    if (normalize(key) === "location" && !out.Location) out.Location = val;
   });
   return out;
 }
 
-// Robust "horizontal" mapping
-function mapHorizontal(header, data) {
-  let out = {};
-  if (!header || !data) return out;
-  for (let i=0; i<header.length; ++i) {
-    for (const field in FIELD_MAP) {
-      for (const variant of FIELD_MAP[field]) {
-        if (normalize(header[i]) === normalize(variant)) {
-          out[field] = data[i];
-        }
-      }
-    }
-  }
-  return out;
-}
-
-// Main handler
 document.getElementById('file-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
@@ -277,6 +268,7 @@ document.getElementById('file-input').addEventListener('change',function(e){
   }
 });
 
+// The rest is unchanged:
 document.getElementById('img-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
