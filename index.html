@@ -4,8 +4,6 @@
   <meta charset="utf-8">
   <title>Valenveras – Cannabis Test Report Builder</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-
-  <!-- ───── STYLES ───── -->
   <style>
     :root {
       --bg:#dff2fd; --primary:#1e3d59; --accent:#64a60a;
@@ -14,8 +12,6 @@
     * { box-sizing:border-box; font-family:var(--font) }
     body { margin:0; padding:1rem; background:var(--bg); color:var(--text) }
     #container { max-width:880px; margin:auto }
-
-    /* Wizard cards */
     .card { background:#fff; border-radius:8px; padding:1rem 1.25rem; margin:1rem 0;
             box-shadow:0 2px 8px rgba(0,0,0,0.1) }
     .step-badge { display:inline-block; background:var(--primary); color:#fff;
@@ -24,7 +20,6 @@
     .field { margin-bottom:.8rem }
     .field label { display:block; font-weight:600; margin-bottom:.3rem }
     .field input[type="text"],
-    .field input[type="date"],
     .field input[type="file"] {
       width:100%; padding:.5rem; border:2px solid var(--primary);
       border-radius:6px; font-size:1rem;
@@ -34,7 +29,6 @@
            font-weight:600; cursor:pointer; margin-top:.5rem }
     .btn:disabled { opacity:.5; cursor:default }
 
-    /* Uploader */
     #uploader {
       border:2px dashed var(--primary); padding:2.5rem 1rem;
       text-align:center; border-radius:8px; margin-top:.5rem; background:#fff;
@@ -42,7 +36,6 @@
     }
     #uploader.dragover { background:rgba(30,61,89,0.1) }
 
-    /* Report */
     #report-card { background:#fff; width:800px; margin:2rem auto;
                    border-radius:12px; padding:1.5rem;
                    box-shadow:0 4px 14px rgba(0,0,0,0.15) }
@@ -71,398 +64,217 @@
     @media print { .no-print { display:none!important } }
   </style>
 
-  <!-- ───── LIBRARIES ───── -->
+  <!-- LIBRARIES -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
-  </script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- ───── DOCX.JS FOR TEMPLATE GEN ───── -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.6.0/docx.umd.js"></script>
 </head>
-
 <body>
   <div id="container">
     <!-- STEP 1 -->
     <section id="step1" class="card">
       <h3><span class="step-badge">1</span>Customer & Sample</h3>
       <div class="field"><label for="custName">Dispensary Name</label>
-        <input id="custName" type="text" placeholder="e.g. De Kruidenier Cannabis Takeaway">
-      </div>
-      <div class="field"><label for="custLogo">Upload Dispensary Logo (PNG/JPG)</label>
-        <input id="custLogo" type="file" accept="image/png,image/jpeg">
-      </div>
-
-      <!-- NEW FIELDS -->
-      <div class="field"><label for="materialName">Material Name</label>
-        <input id="materialName" type="text" placeholder="{{MaterialName}}">
-      </div>
-      <div class="field"><label for="company">Company</label>
-        <input id="company" type="text" placeholder="{{Company}}">
-      </div>
-      <div class="field"><label for="onBehalf">Created On Behalf Of</label>
-        <input id="onBehalf" type="text" placeholder="{{CreatedOnBehalf}}">
-      </div>
-      <div class="field"><label for="deviceID">Device ID</label>
-        <input id="deviceID" type="text" placeholder="{{DeviceID}}">
-      </div>
-      <div class="field"><label for="lotName">Lot Name</label>
-        <input id="lotName" type="text" placeholder="{{LotName}}">
-      </div>
-      <div class="field"><label for="supplier">Supplier Name</label>
-        <input id="supplier" type="text" placeholder="{{SupplierName}}">
-      </div>
-      <div class="field"><label for="location">Location</label>
-        <input id="location" type="text" placeholder="{{Location}}">
-      </div>
-
-      <!-- EXISTING FIELDS -->
+        <input id="custName" type="text" placeholder="e.g. De Kruidenier Cannabis Takeaway"></div>
+      <div class="field"><label for="custLogo">Dispensary Logo</label>
+        <input id="custLogo" type="file" accept="image/png,image/jpeg"></div>
       <div class="field"><label for="sampleID">Sample ID</label>
-        <input id="sampleID" type="text" placeholder="e.g. C-003">
-      </div>
+        <input id="sampleID" type="text" placeholder="C-003"></div>
       <div class="field"><label for="sampleName">Sample Name</label>
-        <input id="sampleName" type="text" placeholder="e.g. Blue Haze">
-      </div>
+        <input id="sampleName" type="text" placeholder="Blue Haze"></div>
       <div class="field"><label for="harvestDate">Harvest Date</label>
-        <input id="harvestDate" type="text" placeholder="e.g. 09-Apr-2025">
-      </div>
+        <input id="harvestDate" type="text" placeholder="09-Apr-2025"></div>
       <div class="field"><label for="plantType">Plant Type</label>
-        <input id="plantType" type="text" placeholder="e.g. Sativa Dominant">
-      </div>
+        <input id="plantType" type="text" placeholder="Sativa Dominant"></div>
       <div class="field"><label for="floweringTime">Flowering Time</label>
-        <input id="floweringTime" type="text" placeholder="e.g. 9 Weeks">
-      </div>
-      <div class="field"><label for="samplePhoto">Upload Sample Photo (PNG/JPG)</label>
-        <input id="samplePhoto" type="file" accept="image/png,image/jpeg">
-      </div>
+        <input id="floweringTime" type="text" placeholder="9 Weeks"></div>
+      <div class="field"><label for="samplePhoto">Sample Photo</label>
+        <input id="samplePhoto" type="file" accept="image/png,image/jpeg"></div>
       <button id="toStep2" class="btn" disabled>Next → Upload Lab File</button>
     </section>
 
     <!-- STEP 2 -->
     <section id="step2" class="card" hidden>
-      <h3><span class="step-badge">2</span>Upload NeoScanner Export</h3>
+      <h3><span class="step-badge">2</span>Upload Lab Data (PDF/CSV/XLSX)</h3>
       <div id="uploader">
-        <input type="file" id="fileInput" hidden multiple accept=".pdf,.csv,.xls,.xlsx">
-        <p><strong>Drag & drop</strong> PDF + CSV/XLSX<br>or <a href="#" id="browseLink">browse</a>…</p>
+        <input id="fileInput" type="file" hidden multiple accept=".pdf,.csv,.xls,.xlsx">
+        <p><strong>Drag & drop</strong> lab files or <a href="#" id="browseLink">browse</a></p>
       </div>
     </section>
 
-    <!-- REPORT -->
+    <!-- REPORT CARD -->
     <article id="report-card" hidden></article>
 
-    <!-- DOWNLOAD -->
+    <!-- DOWNLOAD CONTROLS -->
     <div class="no-print">
       <button id="dlHtml" class="btn" hidden>⬇ Download HTML</button>
-      <button id="dlPdf" class="btn" hidden>⬇ Download PDF</button>
-      <!-- NEW: Download Word Template -->
-      <button id="dlDocx" class="btn">⬇ Download .docx Template</button>
+      <button id="dlPdf"  class="btn" hidden>⬇ Download PDF</button>
+      <button id="dlDocx" class="btn" hidden>⬇ Download Word</button>
     </div>
   </div>
 
   <script>
-    // shortcut
-    const $ = s => document.querySelector(s);
+    const $ = s=>document.querySelector(s);
+    window.labData={};
 
-    // STEP 1 logic
-    const mandatory = [ '#custName','#sampleID','#sampleName' ];
-    function checkStep1(){
-      const ok = mandatory.every(sel=> $(sel).value.trim());
-      $('#toStep2').disabled = !ok;
-    }
-    mandatory.forEach(sel=> $(sel).addEventListener('input', checkStep1));
-    $('#toStep2').onclick = () => {
-      $('#step1').hidden=true;
-      $('#step2').hidden=false;
-    };
-
-    // STEP 2 drag & drop / browse
-    const up = $('#uploader'), fileIn = $('#fileInput');
-    $('#browseLink').onclick = e=>{ e.preventDefault(); fileIn.click() };
-    up.onclick = ()=> fileIn.click();
-    ['dragenter','dragover'].forEach(e=>
-      up.addEventListener(e, ev=>{ ev.preventDefault(); up.classList.add('dragover'); }));
-    ['dragleave','drop'].forEach(e=>
-      up.addEventListener(e, ev=>{
-        ev.preventDefault(); up.classList.remove('dragover');
-        if(e==='drop') handleFiles(ev.dataTransfer.files);
-      }));
-    fileIn.onchange = e => handleFiles(e.target.files);
-
-    // parse helpers
-    const ext = f=> f.name.split('.').pop().toLowerCase();
-    const parseCSV = f=> new Promise((res,rej)=>
-      Papa.parse(f,{header:true,skipEmptyLines:true,complete:res,error:rej})
-    );
-    const parseXLSX = f=> new Promise((res,rej)=>{
-      const r = new FileReader();
-      r.onload = e=>{
-        const wb = XLSX.read(e.target.result,{type:'binary'});
-        res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
-      };
-      r.onerror=rej;
-      r.readAsBinaryString(f);
-    });
-    async function parsePDF(f){
-      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
-      let txt = '';
-      for(let p=1;p<=pdf.numPages;p++){
-        const ct = await (await pdf.getPage(p)).getTextContent();
-        txt += ct.items.map(i=>i.str).join(' ') + '\n';
-      }
-      // all keys including new metadata
-      const keys = [
-        "thc total","thca","cbd total","cbda","cbg total","total terpenes",
-        "limonene","b-caryophyllene","g-elemene","b-mircene","linalool",
-        "a-humulene","eudesma","b-pinene","a-pinene","terpinolene",
-        "moisture","aw",
-        "material name","company","created on behalf of",
-        "device id","lot name","supplier name","location"
-      ];
-      const summary = {};
-      keys.forEach(key=>{
-        const re = new RegExp(key+"\\s*[:=]?\\s*([0-9A-Za-z\\- ]+)%?","i");
-        const m = txt.match(re);
-        if(m) summary[key] = m[1].trim();
+    // STEP1 → enable Next
+    [ '#custName','#sampleID','#sampleName' ].forEach(sel=>{
+      $(sel).addEventListener('input',()=>{
+        $('#toStep2').disabled=!( $('#custName').value&&$('#sampleID').value&&$('#sampleName').value );
       });
-      return summary;
+    });
+    $('#toStep2').onclick=()=>{ $('#step1').hidden=true; $('#step2').hidden=false; };
+
+    // STEP2 UI
+    $('#browseLink').onclick=e=>{e.preventDefault();$('#fileInput').click()};
+    $('#uploader').onclick=()=>$('#fileInput').click();
+    ['dragenter','dragover'].forEach(e=>$('#uploader').addEventListener(e,ev=>{ev.preventDefault();$('#uploader').classList.add('dragover')}));
+    ['dragleave','drop'  ].forEach(e=>$('#uploader').addEventListener(e,ev=>{ev.preventDefault();$('#uploader').classList.remove('dragover'); if(e==='drop') handleFiles(ev.dataTransfer.files)}));
+    $('#fileInput').onchange=e=>handleFiles(e.target.files);
+
+    // Parsers
+    const ext=f=>f.name.split('.').pop().toLowerCase();
+    const parseCSV=f=>new Promise((res,rej)=>Papa.parse(f,{header:true,skipEmptyLines:true,complete:res,error:rej}));
+    const parseXLSX=f=>new Promise((res,rej)=>{let r=new FileReader();r.onload=e=>{let wb=XLSX.read(e.target.result,{type:'binary'});res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));};r.onerror=rej;r.readAsBinaryString(f);});
+    async function parsePDF(f){
+      let pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise, txt='';
+      for(let p=1;p<=pdf.numPages;p++){let ct=await(pdf.getPage(p)).getTextContent();txt+=ct.items.map(i=>i.str).join(' ')+'\\n';}
+      let data={};
+      // catch any "Name: value" pairs
+      (txt.match(/([A-Za-z ]+?)[:=]\\s*([0-9\\.\\,]+)/g)||[]).forEach(pair=>{
+        let [full,name,val]=pair.split(/[:=]/); data[name.trim()]=val.trim().replace(',', '.');
+      });
+      return data;
     }
 
-    // handle all file types
     async function handleFiles(files){
-      const list=[...files], fcsv=list.find(f=>ext(f)==='csv'),
-            fxls=list.find(f=>['xls','xlsx'].includes(ext(f))),
-            fpdf=list.find(f=>ext(f)==='pdf');
-      let data={};
+      let arr=[...files], data={};
+      let fcsv=arr.find(f=>ext(f)==='csv'), fxls=arr.find(f=>['xls','xlsx'].includes(ext(f))), fpdf=arr.find(f=>ext(f)==='pdf');
       if(fcsv) data=(await parseCSV(fcsv))[0];
       else if(fxls) data=(await parseXLSX(fxls))[0];
       else if(fpdf) data=await parsePDF(fpdf);
-      else return alert("Upload a CSV, XLS/XLSX or PDF.");
+      else return alert('Please upload a PDF, CSV or XLSX file.');
+      window.labData=data;
       buildReport(data);
     }
 
-    // build the on‐screen report
     function buildReport(d){
-      // gather everything
-      const logoF=$('#custLogo').files[0],
-            logoURL=logoF?URL.createObjectURL(logoF):null,
-            photoF=$('#samplePhoto').files[0],
-            photoURL=photoF?URL.createObjectURL(photoF):null;
-      const vals = sel=> d[sel]||d[sel.toLowerCase()]|| $('#'+sel).value.trim()||'';
-      const fields = {
-        SampleID:vals('sampleID'),
-        SampleName:vals('sampleName'),
-        HarvestDate:vals('harvestDate'),
-        PlantType:vals('plantType'),
-        FloweringTime:vals('floweringTime'),
-        MaterialName:vals('material name'),
-        Company:vals('company'),
-        CreatedOnBehalfOf:vals('created on behalf of'),
-        DeviceID:vals('device id'),
-        LotName:vals('lot name'),
-        SupplierName:vals('supplier name'),
-        Location:vals('location')
+      // logos & photos
+      let logoFile=$('#custLogo').files[0], logoURL=logoFile?URL.createObjectURL(logoFile):null;
+      let photoFile=$('#samplePhoto').files[0], photoURL=photoFile?URL.createObjectURL(photoFile):null;
+      // sample info
+      let info={
+        'Sample ID':$('#sampleID').value.trim(),
+        'Sample Name':$('#sampleName').value.trim(),
+        'Harvest Date':$('#harvestDate').value.trim(),
+        'Plant Type':$('#plantType').value.trim(),
+        'Flowering Time':$('#floweringTime').value.trim()
       };
-
-      const card = $('#report-card');
+      // report container
+      let card=$('#report-card');
       card.innerHTML=`
         <header class="report-header">
-          ${logoURL? `<img class="logo" src="${logoURL}" alt="Logo">`:''}
-          <h1 class="title">CANNABIS TEST REPORT<br>
-            <small>By Valenveras</small>
-          </h1>
-          <img class="logo" src="https://valenveras.com/wp-content/uploads/2023/03/valenveras_4.0.png" alt="Valenveras">
+          ${logoURL?`<img class="logo" src="${logoURL}" alt="Logo">`:''}
+          <h1 class="title">CANNABIS TEST REPORT<br><small>By Valenveras</small></h1>
+          <img class="logo" src="data:image/jpeg;base64,{{VALENVERAS_LOGO_BASE64}}" alt="Valenveras">
         </header>
         <div id="report-date">${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
         <div class="divider"></div>
         <div class="info-grid">
           <div class="info-text">
-            ${Object.entries(fields).map(([k,v])=>
-              `<p><strong>${k.replace(/([A-Z])/g,' $1').trim()}:</strong> ${v||'---'}</p>`
+            ${Object.entries(info).map(([k,v])=>
+              `<p><strong>${k}:</strong> ${v||'---'}</p>`
             ).join('')}
           </div>
-          ${photoURL? `<img class="sample-photo" src="${photoURL}" alt="Sample Photo">`:''}
+          ${photoURL?`<img class="sample-photo" src="${photoURL}" alt="Sample">`:''}
         </div>
         <div class="divider"></div>
-        <h2 class="section-title">CANNABINOIDS</h2>
-        <div class="grid-two">
-          ${['THC Total','THCa','CBD Total','CBDa','CBG Total'].map(k=>{
-            const key=k.toLowerCase();
-            const v=d[key]||'';
-            return `<div><span>${k}</span><span>${v? v+'%' : '---'}</span></div>`;
-          }).join('')}
-        </div>
-        <div class="divider"></div>
-        <h2 class="section-title">TERPENE PROFILE</h2>
-        <div id="terpene-wrapper"></div>
-        <div class="divider"></div>
-        <h2 class="section-title">MOISTURE & WATER ACTIVITY</h2>
-        <div class="grid-two" style="max-width:300px">
-          ${['Moisture','aW'].map(k=>{
-            const key=k.toLowerCase();
-            const v=d[key]||'';
-            return `<div><span>${k}</span><span>${v? v+'%' : '---'}</span></div>`;
-          }).join('')}
-        </div>
+        <h2 class="section-title">LAB RESULTS</h2>
+        <table>
+          <tr><th>Field</th><th>Value</th></tr>
+          ${Object.entries(d).map(([k,v])=>
+            `<tr><td>${k}</td><td>${v}</td></tr>`
+          ).join('')}
+        </table>
         <div class="divider"></div>
         <footer>
           <div class="disclaimer">
-            <strong>Disclaimer:</strong> Indicative only. Not certified for legal/medical/commercial use.
+            <strong>Disclaimer:</strong> Indicative only. Not certified for legal, medical, or commercial use.
           </div>
           <div id="qrContainer" class="qr"></div>
         </footer>
       `;
 
-      // terpene bars
-      const wrap = $('#terpene-wrapper'),
-            terpKeys=["total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
-                     "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene"],
-            valsArr = terpKeys.map(k=>parseFloat(d[k]||0)),
-            maxVal = Math.max(...valsArr,1);
-      terpKeys.forEach((k,i)=>{
-        const pct = (valsArr[i]/maxVal*100)+'%';
-        wrap.insertAdjacentHTML('beforeend',`
-          <div class="terp-row">
-            <span>${k.replace(/(^|\s)\w/g,m=>m.toUpperCase())}</span>
-            <div class="terp-bar">
-              <div class="terp-fill" style="width:${pct};background:var(--accent)"></div>
-            </div>
-            <span class="terp-val">${valsArr[i]? valsArr[i]+'%' : '---'}</span>
-          </div>`);
-      });
-
-      // QR code
+      // QR
       new QRCode($('#qrContainer'),{
-        text:`https://nextdam2025.github.io/kim/reports/${fields.SampleID}.html`,
-        width:120, height:120
+        text:`https://yourdomain.com/reports/${info['Sample ID']}.html`,
+        width:100, height:100
       });
 
       card.hidden=false;
       $('#dlHtml').hidden=false;
       $('#dlPdf').hidden=false;
+      $('#dlDocx').hidden=false;
     }
 
-    // Download HTML
+    // DOWNLOAD: HTML
     $('#dlHtml').onclick=()=>{
-      const sid = $('#sampleID').value.trim()||'report';
-      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${sid}</title>
-        <style>${document.querySelector('head style').innerHTML}</style>
-        </head><body>${$('#report-card').outerHTML}</body></html>`;
-      const blob=new Blob([html],{type:'text/html'});
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download=`${sid}.html`;
-      a.click();
+      let htmlDoc=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${$('#sampleID').value}</title>
+        <style>${document.querySelector('head style').innerHTML}</style></head>
+        <body>${$('#report-card').outerHTML}</body></html>`;
+      let blob=new Blob([htmlDoc],{type:'text/html'}), a=document.createElement('a');
+      a.href=URL.createObjectURL(blob); a.download=`${$('#sampleID').value||'report'}.html`; a.click();
     };
 
-    // Download PDF
-    $('#dlPdf').onclick=()=>{
-      const sid = $('#sampleID').value.trim()||'report';
-      html2pdf().set({
-        margin:[0.5,0.5,0.5,0.5],
-        filename:`${sid}.pdf`,
-        html2canvas:{scale:2,useCORS:true,allowTaint:true},
-        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-      }).from($('#report-card')).save();
-    };
+    // DOWNLOAD: PDF
+    $('#dlPdf').onclick=()=> html2pdf().set({
+      margin:0.5, filename:`${$('#sampleID').value}.pdf`,
+      html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'mm',format:'a4'}
+    }).from($('#report-card')).save();
 
-    // Download DOCX Template
-    $('#dlDocx').onclick = async () => {
-      const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel } = docx;
-
-      const doc = new Document({
-        sections: [{
-          properties: {},
-          children: [
-            new Paragraph({ text: "CANNABIS TEST REPORT", heading: HeadingLevel.TITLE }),
-            new Paragraph({ text: "By {{CreatedBy}}" }),
-            new Paragraph({ text: "{{CreatedAt}}" }),
-            new Paragraph({ text: "" }),
-
-            new Paragraph({ text: "Sample Information", heading: HeadingLevel.HEADING_1 }),
-            new Table({
-              rows: [
-                ...[
-                  "Sample ID","Sample Name","Material Name",
-                  "Harvest Date","Plant Type","Flowering Time",
-                  "Company","Created On Behalf Of","Device ID",
-                  "Lot Name","Supplier Name","Location"
-                ].map(label=>
-                  new TableRow({
-                    children: [
-                      new TableCell({ children:[ new Paragraph(label) ] }),
-                      new TableCell({ children:[ new Paragraph(`{{${label.replace(/ /g,"")}}}`) ] })
-                    ]
-                  })
-                )
-              ]
-            }),
-            new Paragraph({ text: "" }),
-            new Paragraph({ text: "[Insert sample image here]" }),
-
-            new Paragraph({ text: "Cannabinoids", heading: HeadingLevel.HEADING_1 }),
-            new Table({
-              rows: [
-                new TableRow({
-                  children: ["Parameter","Result","Unit","Range"].map(h=>
-                    new TableCell({ children:[ new Paragraph({ text:h, bold:true }) ] })
-                  )
-                }),
-                ...[
-                  "THC Total","THCa","CBD Total","CBDa","CBG Total","Total Terpenes",
-                  "Limonene","B-Caryophyllene","g-Elemene","B-Myrcene",
-                  "Linalool","A-Humulene","Eudesma","B-Pinene","A-Pinene","Terpinolene"
-                ].map(param=>
-                  new TableRow({
-                    children:[
-                      new TableCell({ children:[ new Paragraph(param) ] }),
-                      new TableCell({ children:[ new Paragraph(`{{${param.replace(/[\s\-]/g,"")}}}`) ] }),
-                      new TableCell({ children:[ new Paragraph("%") ] }),
-                      new TableCell({ children:[ new Paragraph(`{{${param.replace(/[\s\-]/g,"")}Range}}}`) ] })
-                    ]
-                  })
-                )
-              ]
-            }),
-
-            new Paragraph({ text: "Moisture Content", heading: HeadingLevel.HEADING_1 }),
-            new Paragraph({ text: "Moisture: {{Moisture}} %" }),
-            new Paragraph({ text: "aW: {{aW}}" }),
-
-            new Paragraph({ text: "Terpene Profile", heading: HeadingLevel.HEADING_1 }),
-            new Table({
-              rows: [
-                ...["B-Myrcene","Limonene","Linalool","A-Pinene","B-Caryophyllene"]
-                  .map(t=>
-                    new TableRow({
-                      children:[
-                        new TableCell({ children:[ new Paragraph(t) ] }),
-                        new TableCell({ children:[ new Paragraph(`{{${t.replace(/[\-\s]/g,"")}}}`) ] })
-                      ]
-                    })
-                  )
-              ]
-            }),
-
-            new Paragraph({ text: "Disclaimer", heading: HeadingLevel.HEADING_1 }),
-            new Paragraph({
-              text: "This test result is intended to provide indicative information about the composition of cannabis. The results are not certified and cannot be used for legal, medical, or commercial purposes."
-            })
-          ]
-        }]
-      });
-
-      const blob = await Packer.toBlob(doc);
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "cannabis_report_template.docx";
-      link.click();
+    // DOWNLOAD: Word
+    $('#dlDocx').onclick=async()=>{
+      const {{ Packer, Document, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel }} = docx;
+      let doc=new Document({ sections:[{ children:[
+        new Paragraph({ text:'CANNABIS TEST REPORT', heading:HeadingLevel.TITLE }),
+        new Paragraph({ text:`By Valenveras` }),
+        new Paragraph({ text:`${new Date().toISOString().slice(0,10)}` }),
+        new Paragraph({ text:'' }),
+        new Paragraph({ text:'Sample Information', heading:HeadingLevel.HEADING_1 }),
+        new Table({ rows:[
+          ...Object.entries({
+            'Sample ID':$('#sampleID').value,
+            'Sample Name':$('#sampleName').value,
+            'Harvest Date':$('#harvestDate').value,
+            'Plant Type':$('#plantType').value,
+            'Flowering Time':$('#floweringTime').value
+          }).map(([k,v])=>new TableRow({ children:[
+            new TableCell({ children:[new Paragraph(k)] }),
+            new TableCell({ children:[new Paragraph(v)] })
+          ]}))
+        ]}),
+        new Paragraph({ text:'' }),
+        new Paragraph({ text:'Lab Results', heading:HeadingLevel.HEADING_1 }),
+        new Table({ rows:[
+          new TableRow({ children:[
+            new TableCell({ children:[new Paragraph({text:'Field',bold:true})] }),
+            new TableCell({ children:[new Paragraph({text:'Value',bold:true})] })
+          ]}),
+          ...Object.entries(window.labData).map(([k,v])=>new TableRow({ children:[
+            new TableCell({ children:[new Paragraph(k)] }),
+            new TableCell({ children:[new Paragraph(String(v))] })
+          ]}))
+        ]}),
+        new Paragraph({ text:'Disclaimer', heading:HeadingLevel.HEADING_1 }),
+        new Paragraph({ text:'Indicative only. Not certified for legal, medical, or commercial use.' })
+      ]}] });
+      let blob=await Packer.toBlob(doc), link=document.createElement('a');
+      link.href=URL.createObjectURL(blob); link.download=`${$('#sampleID').value||'report'}.docx`; link.click();
     };
   </script>
 </body>
 </html>
-
