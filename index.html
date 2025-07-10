@@ -3,108 +3,67 @@
 <head>
   <meta charset="utf-8">
   <title>Valenveras – Cannabis Test Report Builder</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
-  <!-- ───── STYLES ───── -->
+  <!-- Styles (unchanged) -->
   <style>
     :root {
-      --bg:#dff2fd;
-      --primary:#1e3d59;
-      --accent:#64a60a;
-      --text:#1e3d59;
-      --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
+      --bg:#dff2fd; --primary:#1e3d59; --accent:#64a60a;
+      --text:#1e3d59; --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
     }
-    * { box-sizing:border-box; font-family:var(--font) }
-    body { margin:0; padding:1rem; background:var(--bg); color:var(--text) }
-    #container { max-width:880px; margin:auto }
-
-    /* ── Wizard ── */
-    .card { background:#fff; border-radius:8px; padding:1rem 1.25rem; margin:1rem 0;
-            box-shadow:0 2px 8px rgba(0,0,0,0.1) }
-    .step-badge { display:inline-block; background:var(--primary); color:#fff;
-                  border-radius:50%; width:26px; height:26px; text-align:center;
-                  line-height:26px; margin-right:.5rem; font-weight:600 }
-    .field { margin-bottom:.8rem }
-    .field label { display:block; font-weight:600; margin-bottom:.3rem }
+    *{box-sizing:border-box;font-family:var(--font)}
+    body{margin:0;padding:1rem;background:var(--bg);color:var(--text)}
+    #container{max-width:880px;margin:auto}
+    .card{background:#fff;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;
+          box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .step-badge{display:inline-block;background:var(--primary);color:#fff;
+                border-radius:50%;width:26px;height:26px;text-align:center;
+                line-height:26px;margin-right:.5rem;font-weight:600}
+    .field{margin-bottom:.8rem}
+    .field label{display:block;font-weight:600;margin-bottom:.3rem}
     .field input[type="text"],
     .field input[type="date"],
-    .field input[type="file"] {
-      width:100%; padding:.5rem; border:2px solid var(--primary);
-      border-radius:6px; font-size:1rem;
+    .field input[type="file"]{
+      width:100%;padding:.5rem;border:2px solid var(--primary);
+      border-radius:6px;font-size:1rem
     }
-    .btn { background:var(--primary); color:#fff; border:none;
-           padding:.6rem 1.25rem; border-radius:6px;
-           font-weight:600; cursor:pointer; margin-top:.5rem }
-    .btn:disabled { opacity:.5; cursor:default }
-
-    /* ── Uploader ── */
-    #uploader {
-      border:2px dashed var(--primary); padding:2.5rem 1rem;
-      text-align:center; border-radius:8px; margin-top:.5rem; background:#fff;
-    }
-    #uploader.dragover { background:rgba(30,61,89,0.1) }
-
-    /* ── Report ── */
-    #report-card {
-      background:#fff; width:800px; margin:2rem auto;
-      border-radius:12px; padding:1.5rem;
-      box-shadow:0 4px 14px rgba(0,0,0,0.15);
-    }
-    header.report-header {
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    header.report-header img.logo {
-      height:60px; object-fit:contain;
-    }
-    h1.title {
-      margin:0; font-size:2rem; text-align:center; line-height:1.1;
-    }
-    h1.title small {
-      display:block; font-size:1rem; font-weight:normal;
-    }
-    #report-date {
-      text-align:center; margin:.5rem 0 1rem; font-weight:500;
-    }
-    .divider { height:2px; background:var(--primary); margin:1rem 0 }
-    .info-grid {
-      display:flex; justify-content:space-between; gap:1rem;
-    }
-    .info-grid .info-text p {
-      margin:.3rem 0;
-    }
-    .info-grid img.sample-photo {
-      max-width:180px; border-radius:6px;
-    }
-    h2.section-title { margin-bottom:.5rem; color:var(--primary) }
-    table {
-      width:100%; border-collapse:collapse; margin-bottom:1rem
-    }
-    th, td {
-      padding:.6rem; border:1px solid #e0e0e0;
-    }
-    th {
-      background:var(--primary); color:#fff; text-align:left
-    }
-    .terp-row {
-      display:flex; align-items:center; gap:.5rem; margin:.3rem 0;
-    }
-    .terp-bar {
-      flex:1; height:16px; background:#e0e0e0;
-      border-radius:8px; overflow:hidden; position:relative;
-    }
-    .terp-fill {
-      height:100%; border-radius:8px; width:0;
-      transition:width .6s ease;
-    }
-    .terp-val { width:3.5rem; text-align:right; font-weight:600 }
-    footer {
-      margin-top:1rem; font-size:.85rem; line-height:1.4;
-    }
-    .qr { text-align:center; margin-top:1rem }
-    @media print { .no-print { display:none!important } }
+    .btn{background:var(--primary);color:#fff;border:none;
+         padding:.6rem 1.25rem;border-radius:6px;
+         font-weight:600;cursor:pointer;margin-top:.5rem}
+    .btn:disabled{opacity:.5;cursor:default}
+    #uploader{border:2px dashed var(--primary);padding:2.5rem 1rem;
+              text-align:center;border-radius:8px;margin-top:.5rem;background:#fff;}
+    #uploader.dragover{background:rgba(30,61,89,0.1)}
+    #report-card{background:#fff;width:800px;margin:2rem auto;
+                 border-radius:12px;padding:1.5rem;
+                 box-shadow:0 4px 14px rgba(0,0,0,0.15)}
+    header.report-header{display:flex;align-items:center;justify-content:space-between}
+    header.report-header img.logo{height:60px;object-fit:contain}
+    h1.title{margin:0;font-size:2rem;text-align:center;line-height:1.1}
+    h1.title small{display:block;font-size:1rem;font-weight:normal}
+    #report-date{text-align:center;margin:.5rem 0 1rem;font-weight:500}
+    .divider{height:2px;background:var(--primary);margin:1rem 0}
+    .info-grid{display:flex;justify-content:space-between;gap:1rem}
+    .info-grid .info-text p{margin:.3rem 0}
+    .info-grid img.sample-photo{max-width:180px;border-radius:6px}
+    h2.section-title{margin-bottom:.5rem;color:var(--primary)}
+    table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+    th,td{padding:.6rem;border:1px solid #e0e0e0}
+    th{background:var(--primary);color:#fff;text-align:left}
+    .terp-row{display:flex;align-items:center;gap:.5rem;margin:.3rem 0}
+    .terp-bar{flex:1;height:16px;background:#e0e0e0;
+              border-radius:8px;overflow:hidden;position:relative}
+    .terp-fill{height:100%;border-radius:8px;width:0;
+               transition:width .6s ease}
+    .terp-val{width:3.5rem;text-align:right;font-weight:600}
+    footer{margin-top:1rem;font-size:.85rem;line-height:1.4}
+    .disclaimer{font-size:.85rem;line-height:1.4;margin-top:1rem}
+    .qr{text-align:center;margin-top:1rem}
+    .no-print{text-align:center;margin-top:1rem}
+    @media print{.no-print{display:none!important}}
   </style>
 
-  <!-- ── LIBRARIES ── -->
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
@@ -118,7 +77,6 @@
 
 <body>
   <div id="container">
-
     <!-- STEP 1 -->
     <section class="card">
       <h3><span class="step-badge">1</span>Customer & Sample</h3>
@@ -127,7 +85,7 @@
         <input id="custName" type="text" placeholder="e.g. De Kruidenier Cannabis Takeaway">
       </div>
       <div class="field">
-        <label for="custLogo">Upload Dispensary Logo</label>
+        <label for="custLogo">Upload Dispensary Logo (PNG/JPG)</label>
         <input id="custLogo" type="file" accept="image/png,image/jpeg">
       </div>
       <div class="field">
@@ -151,7 +109,7 @@
         <input id="floweringTime" type="text" placeholder="e.g. 9 Weeks">
       </div>
       <div class="field">
-        <label for="samplePhoto">Upload Sample Photo</label>
+        <label for="samplePhoto">Upload Sample Photo (PNG/JPG)</label>
         <input id="samplePhoto" type="file" accept="image/png,image/jpeg">
       </div>
       <button id="toStep2" class="btn" disabled>Next → Upload Lab File</button>
@@ -170,7 +128,7 @@
     <article id="report-card" hidden></article>
 
     <!-- DOWNLOAD -->
-    <div class="no-print" style="text-align:center; margin-top:1rem">
+    <div class="no-print">
       <button id="dlHtml" class="btn" hidden>⬇ Download HTML</button>
       <button id="dlPdf" class="btn" hidden>⬇ Download PDF</button>
     </div>
@@ -182,16 +140,14 @@
     // STEP 1 → enable Next
     const cname=$('#custName'), sid=$('#sampleID'), sname=$('#sampleName'),
           btn2=$('#toStep2');
-    function chk1() {
-      btn2.disabled = !(cname.value.trim() && sid.value.trim() && sname.value.trim());
-    }
+    function chk1(){ btn2.disabled = !(cname.value.trim() && sid.value.trim() && sname.value.trim()); }
     [cname,sid,sname].forEach(el=>el.addEventListener('input', chk1));
     btn2.onclick = ()=> $('#step2').hidden=false;
 
     // STEP 2 UI
     const up=$('#uploader'), fileIn=$('#fileInput'), browse=$('#browseLink');
     browse.onclick = e=>{ e.preventDefault(); fileIn.click() };
-    ['dragenter','dragover'].forEach(ev =>
+    ['dragenter','dragover'].forEach(ev=>
       up.addEventListener(ev,e=>{ e.preventDefault(); up.classList.add('dragover') })
     );
     ['dragleave','drop'].forEach(ev=>
@@ -202,7 +158,7 @@
     );
     fileIn.onchange = e=> handleFiles(e.target.files);
 
-    // Parsers...
+    // Parsers
     const ext = f=>f.name.split('.').pop().toLowerCase();
     const parseCSV = f=>new Promise((res,rej)=>
       Papa.parse(f,{header:true,skipEmptyLines:true,complete:res,error:rej})
@@ -219,22 +175,35 @@
       const pdf = await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
       let txt='';
       for(let p=1;p<=pdf.numPages;p++){
-        const items=(await (await pdf.getPage(p)).getTextContent()).items;
-        txt+=items.map(i=>i.str).join(' ')+'\n';
+        const ct=await (await pdf.getPage(p)).getTextContent();
+        txt += ct.items.map(i=>i.str).join(' ') + '\\n';
       }
-      return txt;
+      const keys=[
+        "thc total","thca","cbd total","cbda","cbg total",
+        "total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
+        "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene",
+        "moisture","aw"
+      ];
+      const summary={};
+      keys.forEach(key=>{
+        const re=new RegExp(key+"\\\\s*[:=]?\\\\s*([0-9]+(?:[\\\\.,][0-9]+)?)%?","i");
+        const m=txt.match(re);
+        if(m) summary[key]=m[1].replace(",",".");
+      });
+      return summary;
     }
 
     async function handleFiles(files){
       const list=[...files];
       let data={};
       if(list.some(f=>ext(f)==='csv')){
-        data=(await parseCSV(list.find(f=>ext(f)==='csv')))[0];
-      } else if(list.some(f=>ext(f)==='xlsx'||ext(f)==='xls')){
-        data=(await parseXLSX(list.find(f=>/(xls|xlsx)/.test(ext(f)))))[0];
+        data = (await parseCSV(list.find(f=>ext(f)==='csv')))[0];
+      } else if(list.some(f=>['xls','xlsx'].includes(ext(f)))){
+        data = (await parseXLSX(list.find(f=>['xls','xlsx'].includes(ext(f)))))[0];
+      } else if(list.some(f=>ext(f)==='pdf')){
+        data = await parsePDF(list.find(f=>ext(f)==='pdf'));
       } else {
-        alert('Please upload at least a CSV or XLS/XLSX summary.');
-        return;
+        return alert("Upload a CSV, XLS/XLSX or PDF summary.");
       }
       buildReport(data);
     }
@@ -246,7 +215,7 @@
             photoURL=photoF?URL.createObjectURL(photoF):null;
       const sidV=$('#sampleID').value.trim(),
             snameV=$('#sampleName').value.trim(),
-            hdV=$('#harvestDate').value,
+            hdV=$('#harvestDate').value.trim(),
             ptV=$('#plantType').value.trim(),
             ftV=$('#floweringTime').value.trim();
 
@@ -272,9 +241,9 @@
         <div class="divider"></div>
         <h2 class="section-title">CANNABINOIDS</h2>
         <div class="grid-two">
-          ${['THC Total','THCa','CBD Total','CBDa','CBG Total'].map(k=>{
+          ${['thc total','thca','cbd total','cbda','cbg total'].map(k=>{
             const v=d[k]||d[k.toLowerCase()]||'';
-            return v?`<div><span>${k}</span><span>${v}%</span></div>`:'';
+            return v?`<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>`:'';
           }).join('')}
         </div>
         <div class="divider"></div>
@@ -283,29 +252,30 @@
         <div class="divider"></div>
         <h2 class="section-title">MOISTURE & WATER ACTIVITY</h2>
         <div class="grid-two" style="max-width:300px">
-          ${['Moisture','aW'].map(k=>{
+          ${['moisture','aw'].map(k=>{
             const v=d[k]||d[k.toLowerCase()]||'';
-            return v?`<div><span>${k}</span><span>${v}</span></div>`:'';
+            return v?`<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>`:'';
           }).join('')}
         </div>
         <div class="divider"></div>
         <footer>
           <div class="disclaimer">
-            <strong>Disclaimer:</strong> Indicative composition only. Not certified for legal/medical/commercial use.
+            <strong>Disclaimer:</strong> Indicative only. Not certified for legal/medical/commercial use.
           </div>
           <div id="qrContainer" class="qr"></div>
         </footer>
       `;
-      // render terpene bars
-      const wrapper=$('#terpene-wrapper');
-      const keys=['Limonene','B-Caryophyllene','G-elemene','B-mircene','Linalool','A-humulene','Eudesma','B-pinene','A-pinene','Terpinolene'];
-      const vals=keys.map(k=>parseFloat((d[k]||0)));
+      // terpene bars
+      const wrap=$('#terpene-wrapper');
+      const terps=["total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
+                   "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene"];
+      const vals=terps.map(k=>parseFloat(d[k]||0));
       const mx=Math.max(...vals,1);
-      keys.forEach((k,i)=>{
+      terps.forEach((k,i)=>{
         const pct=(vals[i]/mx*100)+'%';
-        wrapper.insertAdjacentHTML('beforeend',`
+        wrap.insertAdjacentHTML('beforeend',`
           <div class="terp-row">
-            <span>${k}</span>
+            <span>${k.replace(/(^|\\s)\\w/g,m=>m.toUpperCase())}</span>
             <div class="terp-bar"><div class="terp-fill" style="width:${pct};background:var(--accent)"></div></div>
             <span class="terp-val">${vals[i]?vals[i]+'%':'---'}</span>
           </div>`);
@@ -316,20 +286,20 @@
         width:120,height:120
       });
 
-      card.hidden=false;
-      $('#dlHtml').hidden=false;
-      $('#dlPdf').hidden=false;
+      card.hidden=false; $('#dlHtml').hidden=false; $('#dlPdf').hidden=false;
     }
 
-    // Download HTML/PDF
+    // Download HTML
     $('#dlHtml').onclick=()=>{
       const sid=$('#sampleID').value.trim()||'report';
-      const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${sid}</title><style>`+
-        document.querySelector('head style').innerHTML+
-        `</style></head><body>${$('#report-card').outerHTML}</body></html>`;
+      const html="<!DOCTYPE html><html><head><meta charset='utf-8'><title>"+sid+"</title><style>"+
+                 document.querySelector('head style').innerHTML+
+                 "</style></head><body>"+$('#report-card').outerHTML+"</body></html>";
       const blob=new Blob([html],{type:'text/html'}),a=document.createElement('a');
-      a.href=URL.createObjectURL(blob); a.download=sid+'.html'; a.click();
+      a.href=URL.createObjectURL(blob);a.download=sid+'.html';a.click();
     };
+
+    // Download PDF
     $('#dlPdf').onclick=()=>{
       const sid=$('#sampleID').value.trim()||'report';
       html2pdf().set({
