@@ -139,7 +139,108 @@ const fields = [
   "Limonene","BCaryophyllene","GElemene","BMyrcene","Linalool","AHumulene","Eudesma","BPinene","APinene","Terpinolene",
   "Moisture","aW"
 ];
+
+// All known field name variations for robust mapping
+const FIELD_MAP = {
+  SampleName: ["Sample Name", "SampleName", "Sample", "Naam", "Sample Naam"],
+  MaterialName: ["Material Name", "Material", "MaterialNaam"],
+  SampleID: ["Sample ID", "SampleId", "ID", "Sample"],
+  LotName: ["Lot Name", "Lot", "Batch"],
+  DeviceID: ["Device ID", "DeviceId", "Apparaat"],
+  Company: ["Company", "Bedrijf", "Organization", "Organisatie"],
+  SupplierName: ["Supplier Name", "Supplier", "Leverancier"],
+  CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name"],
+  CreatedAt: ["Created At", "Date", "Datum", "Test Date"],
+  Location: ["Location", "Locatie", "GPS"],
+  THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal"],
+  THCa: ["THCa", "THC-Acid", "THCA"],
+  CBDTotal: ["CBD Total", "Cbd Total", "Total CBD", "CBD (%)", "CBDtotal"],
+  CBDa: ["CBDa", "CBD-Acid", "CBDA"],
+  CBGTotal: ["CBG Total", "Cbg Total", "Total CBG", "CBG (%)", "CBGtotal"],
+  TotalTerpenes: ["Total Terpenes", "Terpenes Total", "Totale Terpenen"],
+  Limonene: ["Limonene"],
+  BCaryophyllene: ["B-Caryophyllene", "B-caryophyllene", "Beta Caryophyllene"],
+  GElemene: ["G-Elemene", "G-elemene", "Gelemene"],
+  BMyrcene: ["B-Myrcene", "B-mircene", "Beta Myrcene"],
+  Linalool: ["Linalool"],
+  AHumulene: ["A-Humulene", "A-humulene", "Alpha Humulene"],
+  Eudesma: ["Eudesma"],
+  BPinene: ["B-Pinene", "B-pinene", "Beta Pinene"],
+  APinene: ["A-Pinene", "A-pinene", "Alpha Pinene"],
+  Terpinolene: ["Terpinolene"],
+  Moisture: ["Moisture", "Moisture %", "Vochtigheid"],
+  aW: ["aW", "Aw", "Water Activity", "Wateractiviteit"],
+};
+
 let report = {};
+
+// Normalize for robust key matching
+function normalize(str) {
+  return String(str||"").replace(/[\s_\-\.%:]/gi,"").toLowerCase();
+}
+
+// Map row object/array to your canonical field names
+function autoMapRow(row) {
+  let mapped = {};
+  // If row is object with headers
+  if (typeof row === "object" && !Array.isArray(row)) {
+    for (const field in FIELD_MAP) {
+      for (const variant of FIELD_MAP[field]) {
+        for (const key in row) {
+          if (normalize(key) === normalize(variant)) {
+            mapped[field] = row[key];
+          }
+        }
+      }
+    }
+  } 
+  // If row is an array, skip here (see vertical mapping below)
+  return mapped;
+}
+
+// Parse vertical-style key/value sheets (Parameter, Value)
+function autoMapVerticalRows(rows) {
+  let mapped = {};
+  rows.forEach(row => {
+    if(row.length < 2) return;
+    for (const field in FIELD_MAP) {
+      for (const variant of FIELD_MAP[field]) {
+        if (normalize(row[0]) === normalize(variant)) {
+          mapped[field] = row[1];
+        }
+      }
+    }
+  });
+  return mapped;
+}
+
+// Main mapping logic for any file type
+function fillFromData(rows) {
+  let mapped = {};
+  // Try classic header-row style first
+  if (Array.isArray(rows) && rows.length > 1 && Array.isArray(rows[0])) {
+    // Header row (array) + value row(s)
+    const header = rows[0], valueRow = rows[1];
+    // If header looks like "Parameter, Result, ...", do vertical
+    if (/parameter/i.test(header[0]) && /result/i.test(header[1])) {
+      mapped = autoMapVerticalRows(rows.slice(1));
+    } else {
+      // Map from header/value row as key-value
+      let obj = {};
+      header.forEach((h,i) => obj[h] = valueRow[i]);
+      mapped = autoMapRow(obj);
+    }
+  } 
+  // Try vertical key/value for array-of-arrays or CSV with no headers
+  else if (Array.isArray(rows) && Array.isArray(rows[0]) && rows[0].length === 2) {
+    mapped = autoMapVerticalRows(rows);
+  }
+  // If parsed as array of objects (PapaParse with header:true)
+  else if (Array.isArray(rows) && typeof rows[0] === "object") {
+    mapped = autoMapRow(rows[0]);
+  }
+  fillFields(mapped);
+}
 
 function setField(id, val) {
   report[id] = val;
@@ -170,135 +271,31 @@ function fillFields(data) {
   drawQR();
 }
 
-// Smart local header matching before AI
-const FIELD_MAP = {
-  SampleName: ["Sample Name", "SampleName", "Sample", "Naam", "Sample Naam"],
-  MaterialName: ["Material Name", "Material", "MaterialNaam"],
-  SampleID: ["Sample ID", "SampleId", "ID", "Sample"],
-  LotName: ["Lot Name", "Lot", "Batch"],
-  DeviceID: ["Device ID", "DeviceId", "Apparaat"],
-  Company: ["Company", "Bedrijf", "Organization", "Organisatie"],
-  SupplierName: ["Supplier Name", "Supplier", "Leverancier"],
-  CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name"],
-  CreatedAt: ["Created At", "Date", "Datum", "Test Date"],
-  Location: ["Location", "Locatie", "GPS"],
-  THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal", "THC total"],
-  THCa: ["THCa", "THC-Acid", "THCA"],
-  CBDTotal: ["CBD Total", "Cbd Total", "Total CBD", "CBD (%)", "CBDtotal"],
-  CBDa: ["CBDa", "CBD-Acid", "CBDA"],
-  CBGTotal: ["CBG Total", "Cbg Total", "Total CBG", "CBG (%)", "CBGtotal"],
-  TotalTerpenes: ["Total Terpenes", "Terpenes Total", "Totale Terpenen"],
-  Limonene: ["Limonene"],
-  BCaryophyllene: ["B-Caryophyllene", "B-caryophyllene", "Beta Caryophyllene"],
-  GElemene: ["G-Elemene", "G-elemene", "Gelemene"],
-  BMyrcene: ["B-Myrcene", "B-mircene", "Beta Myrcene"],
-  Linalool: ["Linalool"],
-  AHumulene: ["A-Humulene", "A-humulene", "Alpha Humulene"],
-  Eudesma: ["Eudesma"],
-  BPinene: ["B-Pinene", "B-pinene", "Beta Pinene"],
-  APinene: ["A-Pinene", "A-pinene", "Alpha Pinene"],
-  Terpinolene: ["Terpinolene"],
-  Moisture: ["Moisture", "Moisture %", "Vochtigheid"],
-  aW: ["aW", "Aw", "Water Activity", "Wateractiviteit"],
-};
-
-function normalize(str) {
-  return String(str||"").replace(/[\s_\-\.%]/gi,"").toLowerCase();
-}
-
-// Try local mapping first
-function tryLocalMap(headerRow, dataRow) {
-  const out = {};
-  for (let i=0; i<headerRow.length; ++i) {
-    for (const field in FIELD_MAP) {
-      for (const variant of FIELD_MAP[field]) {
-        if (normalize(headerRow[i]) === normalize(variant)) {
-          out[field] = dataRow[i];
-        }
-      }
-    }
-  }
-  return out;
-}
-
-// AI fallback mapping
-async function aiMapFields(rawText, fields) {
-  const apiKey = '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';
-  const prompt = `
-Given this cannabis lab export table (headers and values):
-
-${rawText}
-
-Map each value to these fields:
-${fields.join(', ')}
-
-Return ONLY a JSON object.
-If you can't find a value, leave as empty string.
-`;
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + apiKey,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-      max_tokens: 512
-    })
-  });
-  const data = await response.json();
-  try {
-    return JSON.parse(data.choices[0].message.content.trim());
-  } catch (e) {
-    alert('AI response could not be parsed:\n' + data.choices[0].message.content);
-    return {};
-  }
-}
-
+// Main handler
 document.getElementById('file-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async function(ev) {
-    if (file.name.match(/\.csv$/i)) {
-      Papa.parse(file, {
-        complete: async res => {
-          const rows = res.data.filter(r => r.some(c=>c&&String(c).trim()!==""));
-          // try local mapping
-          let obj = {};
-          if (rows.length>1) obj = tryLocalMap(rows[0], rows[1]);
-          // if not enough data, fallback to AI
-          if (Object.keys(obj).length < 6) {
-            const text = rows.map(row => row.join("\t")).join("\n");
-            obj = await aiMapFields(text, fields);
-          }
-          fillFields(obj);
-        }
-      });
-    } else if(file.name.match(/\.(xls|xlsx)$/i)) {
-      const data = new Uint8Array(ev.target.result);
-      const workbook = XLSX.read(data, {type:'array'});
+
+  if(file.name.match(/\.csv$/i)) {
+    Papa.parse(file, {
+      complete: function(res) {
+        // Try mapping array-of-arrays or array-of-objects
+        fillFromData(res.data.filter(r=>Array.isArray(r)?r.join("").trim():""+r));
+      }
+    });
+  } else if(file.name.match(/\.(xls|xlsx)$/i)) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const workbook = XLSX.read(ev.target.result, {type:'binary'});
       const ws = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1});
-      let obj = {};
-      if (rows.length>1) obj = tryLocalMap(rows[0], rows[1]);
-      if (Object.keys(obj).length < 6) {
-        const text = rows.map(row => row.join("\t")).join("\n");
-        obj = await aiMapFields(text, fields);
-      }
-      fillFields(obj);
-    } else {
-      const rawText = ev.target.result;
-      let obj = await aiMapFields(rawText, fields);
-      fillFields(obj);
-    }
-  };
-  if(file.name.match(/\.(xls|xlsx)$/i)) reader.readAsArrayBuffer(file);
-  else reader.readAsText(file);
+      fillFromData(rows.filter(r=>Array.isArray(r)?r.join("").trim():""+r));
+    };
+    reader.readAsBinaryString(file);
+  }
 });
 
+// The rest of your image and PDF download logic stays unchanged...
 document.getElementById('img-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
@@ -331,6 +328,7 @@ function downloadPDF() {
   });
 }
 </script>
+
 
 </body>
 </html>
