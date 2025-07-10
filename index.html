@@ -139,8 +139,6 @@ const fields = [
   "Limonene","BCaryophyllene","GElemene","BMyrcene","Linalool","AHumulene","Eudesma","BPinene","APinene","Terpinolene",
   "Moisture","aW"
 ];
-
-// All known field name variations for robust mapping
 const FIELD_MAP = {
   SampleName: ["Sample Name", "SampleName", "Sample", "Naam", "Sample Naam"],
   MaterialName: ["Material Name", "Material", "MaterialNaam"],
@@ -152,7 +150,7 @@ const FIELD_MAP = {
   CreatedBy: ["Created By", "Contact", "Contactpersoon", "Contact Name"],
   CreatedAt: ["Created At", "Date", "Datum", "Test Date"],
   Location: ["Location", "Locatie", "GPS"],
-  THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal"],
+  THCTotal: ["THC Total", "Thc Total", "Total THC", "THC (%)", "THCtotal", "ThcTotal"],
   THCa: ["THCa", "THC-Acid", "THCA"],
   CBDTotal: ["CBD Total", "Cbd Total", "Total CBD", "CBD (%)", "CBDtotal"],
   CBDa: ["CBDa", "CBD-Acid", "CBDA"],
@@ -169,77 +167,12 @@ const FIELD_MAP = {
   APinene: ["A-Pinene", "A-pinene", "Alpha Pinene"],
   Terpinolene: ["Terpinolene"],
   Moisture: ["Moisture", "Moisture %", "Vochtigheid"],
-  aW: ["aW", "Aw", "Water Activity", "Wateractiviteit"],
+  aW: ["aW", "Aw", "Water Activity", "Wateractiviteit"]
 };
-
 let report = {};
 
-// Normalize for robust key matching
 function normalize(str) {
   return String(str||"").replace(/[\s_\-\.%:]/gi,"").toLowerCase();
-}
-
-// Map row object/array to your canonical field names
-function autoMapRow(row) {
-  let mapped = {};
-  // If row is object with headers
-  if (typeof row === "object" && !Array.isArray(row)) {
-    for (const field in FIELD_MAP) {
-      for (const variant of FIELD_MAP[field]) {
-        for (const key in row) {
-          if (normalize(key) === normalize(variant)) {
-            mapped[field] = row[key];
-          }
-        }
-      }
-    }
-  } 
-  // If row is an array, skip here (see vertical mapping below)
-  return mapped;
-}
-
-// Parse vertical-style key/value sheets (Parameter, Value)
-function autoMapVerticalRows(rows) {
-  let mapped = {};
-  rows.forEach(row => {
-    if(row.length < 2) return;
-    for (const field in FIELD_MAP) {
-      for (const variant of FIELD_MAP[field]) {
-        if (normalize(row[0]) === normalize(variant)) {
-          mapped[field] = row[1];
-        }
-      }
-    }
-  });
-  return mapped;
-}
-
-// Main mapping logic for any file type
-function fillFromData(rows) {
-  let mapped = {};
-  // Try classic header-row style first
-  if (Array.isArray(rows) && rows.length > 1 && Array.isArray(rows[0])) {
-    // Header row (array) + value row(s)
-    const header = rows[0], valueRow = rows[1];
-    // If header looks like "Parameter, Result, ...", do vertical
-    if (/parameter/i.test(header[0]) && /result/i.test(header[1])) {
-      mapped = autoMapVerticalRows(rows.slice(1));
-    } else {
-      // Map from header/value row as key-value
-      let obj = {};
-      header.forEach((h,i) => obj[h] = valueRow[i]);
-      mapped = autoMapRow(obj);
-    }
-  } 
-  // Try vertical key/value for array-of-arrays or CSV with no headers
-  else if (Array.isArray(rows) && Array.isArray(rows[0]) && rows[0].length === 2) {
-    mapped = autoMapVerticalRows(rows);
-  }
-  // If parsed as array of objects (PapaParse with header:true)
-  else if (Array.isArray(rows) && typeof rows[0] === "object") {
-    mapped = autoMapRow(rows[0]);
-  }
-  fillFields(mapped);
 }
 
 function setField(id, val) {
@@ -271,16 +204,46 @@ function fillFields(data) {
   drawQR();
 }
 
-// Main handler
+function mapVertical(rows) {
+  let out = {};
+  rows.forEach(row=>{
+    if (!row || row.length < 2) return;
+    for (const field in FIELD_MAP) {
+      for (const variant of FIELD_MAP[field]) {
+        if (normalize(row[0]) === normalize(variant)) {
+          out[field] = row[1];
+        }
+      }
+    }
+  });
+  return out;
+}
+
 document.getElementById('file-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
-
   if(file.name.match(/\.csv$/i)) {
     Papa.parse(file, {
       complete: function(res) {
-        // Try mapping array-of-arrays or array-of-objects
-        fillFromData(res.data.filter(r=>Array.isArray(r)?r.join("").trim():""+r));
+        let rows = res.data.filter(r=>Array.isArray(r) && r.length > 1 && r[0] && r[1]);
+        // If header row is "Parameter", do vertical, else try header style
+        if (/parameter/i.test(rows[0][0])) {
+          fillFields(mapVertical(rows.slice(1))); // skip header
+        } else {
+          // Try as header row (horizontal)
+          let mapped = {};
+          if(rows.length>1){
+            let header = rows[0], data = rows[1];
+            let obj = {};
+            header.forEach((h,i) => obj[h] = data[i]);
+            for (const f in FIELD_MAP) {
+              for (const v of FIELD_MAP[f]) {
+                if (obj[v] !== undefined) mapped[f] = obj[v];
+              }
+            }
+            fillFields(mapped);
+          }
+        }
       }
     });
   } else if(file.name.match(/\.(xls|xlsx)$/i)) {
@@ -289,13 +252,29 @@ document.getElementById('file-input').addEventListener('change',function(e){
       const workbook = XLSX.read(ev.target.result, {type:'binary'});
       const ws = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1});
-      fillFromData(rows.filter(r=>Array.isArray(r)?r.join("").trim():""+r));
+      let filtered = rows.filter(r=>Array.isArray(r) && r.length > 1 && r[0] && r[1]);
+      if (/parameter/i.test(filtered[0][0])) {
+        fillFields(mapVertical(filtered.slice(1)));
+      } else {
+        // Try as horizontal
+        let mapped = {};
+        if(filtered.length>1){
+          let header = filtered[0], data = filtered[1];
+          let obj = {};
+          header.forEach((h,i) => obj[h] = data[i]);
+          for (const f in FIELD_MAP) {
+            for (const v of FIELD_MAP[f]) {
+              if (obj[v] !== undefined) mapped[f] = obj[v];
+            }
+          }
+          fillFields(mapped);
+        }
+      }
     };
     reader.readAsBinaryString(file);
   }
 });
 
-// The rest of your image and PDF download logic stays unchanged...
 document.getElementById('img-input').addEventListener('change',function(e){
   const file = e.target.files[0];
   if(!file) return;
