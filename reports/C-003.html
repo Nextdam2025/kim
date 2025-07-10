@@ -1,0 +1,141 @@
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8">
+  <title>Valenveras Report Export</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Helvetica, sans-serif;
+      padding: 2rem;
+      background: #e5f4ff;
+    }
+    #report {
+      background: white;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header img {
+      height: 70px;
+    }
+    h1 {
+      text-align: center;
+      margin: 1rem 0 0.5rem;
+    }
+    .section {
+      margin: 1.5rem 0;
+    }
+    .terp-row {
+      display: flex;
+      align-items: center;
+      margin: 0.4rem 0;
+    }
+    .terp-bar {
+      flex: 1;
+      height: 16px;
+      background: #ddd;
+      margin: 0 0.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .terp-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    .qr {
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<div id="report">
+  <header>
+    <img src="https://via.placeholder.com/100x70?text=Customer">
+    <img src="https://via.placeholder.com/100x70?text=Valenveras">
+  </header>
+  <h1>CANNABIS TEST REPORT</h1>
+  <p style="text-align:center"><strong>Date:</strong> <span id="date">10 Jul 2025</span></p>
+
+  <div class="section">
+    <p><strong>Sample ID:</strong> <span id="sampleID">C-003</span></p>
+    <p><strong>Sample Name:</strong> <span id="sample">El Dorado</span></p>
+    <p><strong>Created by:</strong> Valenveras</p>
+    <p><strong>THC:</strong> 22.77%</p>
+    <p><strong>CBD:</strong> 0.3%</p>
+  </div>
+
+  <div class="section">
+    <h3>Terpenes</h3>
+    <div class="terp-row">
+      <span>Limonene</span>
+      <div class="terp-bar"><div class="terp-fill" style="background:#FFD700;width:40%"></div></div>
+      <span>0.4%</span>
+    </div>
+    <div class="terp-row">
+      <span>Myrcene</span>
+      <div class="terp-bar"><div class="terp-fill" style="background:#8A2BE2;width:80%"></div></div>
+      <span>0.8%</span>
+    </div>
+  </div>
+
+  <div class="section qr">
+    <h3>Scan to view this report</h3>
+    <div id="qrcode" title="https://nextdam2025.github.io/kim/reports/C-003.html"><canvas width="120" height="120" style="display: none;"></canvas><img src="data:image/png;base64,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" style="display: block;"></div>
+    <p id="qrLink"><a href="https://nextdam2025.github.io/kim/reports/C-003.html" target="_blank">https://nextdam2025.github.io/kim/reports/C-003.html</a></p>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:2rem;">
+  <button onclick="downloadHTML()">⬇ Download HTML</button>
+  <button onclick="downloadPDF()">⬇ Download PDF</button>
+</div>
+
+<script>
+  const sampleID = document.getElementById("sampleID").textContent.trim();
+  const reportURL = "https://nextdam2025.github.io/kim/reports/" + sampleID + ".html";
+
+  document.getElementById("date").textContent = new Date().toLocaleDateString("en-GB", {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: reportURL,
+    width: 120,
+    height: 120
+  });
+  document.getElementById("qrLink").innerHTML = '<a href="' + reportURL + '" target="_blank">' + reportURL + '</a>';
+
+  function downloadHTML() {
+    const fullHTML = "<!DOCTYPE html><html>" + document.documentElement.innerHTML + "</html>";
+    const blob = new Blob([fullHTML], {type: "text/html"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = sampleID + ".html";
+    a.click();
+  }
+
+  function downloadPDF() {
+    const element = document.getElementById("report");
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: sampleID + ".pdf",
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
+  }
+</script>
+
+
+
+</body></html>
