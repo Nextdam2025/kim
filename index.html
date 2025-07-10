@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Valenveras Report Export</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Helvetica, sans-serif;
+      padding: 2rem;
+      background: #e5f4ff;
+    }
+    #report {
+      background: white;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header img {
+      height: 70px;
+    }
+    h1 {
+      text-align: center;
+      margin: 1rem 0 0.5rem;
+    }
+    .section {
+      margin: 1.5rem 0;
+    }
+    .terp-row {
+      display: flex;
+      align-items: center;
+      margin: 0.4rem 0;
+    }
+    .terp-bar {
+      flex: 1;
+      height: 16px;
+      background: #ddd;
+      margin: 0 0.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .terp-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    .qr {
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<div id="report">
+  <header>
+    <img src="https://via.placeholder.com/100x70?text=Customer" />
+    <img src="https://via.placeholder.com/100x70?text=Valenveras" />
+  </header>
+  <h1>CANNABIS TEST REPORT</h1>
+  <p style="text-align:center"><strong>Date:</strong> <span id="date">--</span></p>
+
+  <div class="section">
+    <p><strong>Sample ID:</strong> <span id="sampleID">C-003</span></p>
+    <p><strong>Sample Name:</strong> <span id="sample">El Dorado</span></p>
+    <p><strong>Created by:</strong> Valenveras</p>
+    <p><strong>THC:</strong> 22.77%</p>
+    <p><strong>CBD:</strong> 0.3%</p>
+  </div>
+
+  <div class="section">
+    <h3>Terpenes</h3>
+    <div class="terp-row">
+      <span>Limonene</span>
+      <div class="terp-bar"><div class="terp-fill" style="background:#FFD700;width:40%"></div></div>
+      <span>0.4%</span>
+    </div>
+    <div class="terp-row">
+      <span>Myrcene</span>
+      <div class="terp-bar"><div class="terp-fill" style="background:#8A2BE2;width:80%"></div></div>
+      <span>0.8%</span>
+    </div>
+  </div>
+
+  <div class="section qr">
+    <h3>Scan to view this report</h3>
+    <div id="qrcode"></div>
+    <p id="qrLink"></p>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:2rem;">
+  <button onclick="downloadHTML()">⬇ Download HTML</button>
+  <button onclick="downloadPDF()">⬇ Download PDF</button>
+</div>
+
+<script>
+  const sampleID = document.getElementById("sampleID").textContent.trim();
+  const reportURL = "https://nextdam2025.github.io/kim/reports/" + sampleID + ".html";
+
+  document.getElementById("date").textContent = new Date().toLocaleDateString("en-GB", {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: reportURL,
+    width: 120,
+    height: 120
+  });
+  document.getElementById("qrLink").innerHTML = '<a href="' + reportURL + '" target="_blank">' + reportURL + '</a>';
+
+  function downloadHTML() {
+    const fullHTML = "<!DOCTYPE html><html>" + document.documentElement.innerHTML + "</html>";
+    const blob = new Blob([fullHTML], {type: "text/html"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = sampleID + ".html";
+    a.click();
+  }
+
+  function downloadPDF() {
+    const element = document.getElementById("report");
+    html2pdf().from(element).set({
+      margin: 10,
+      filename: sampleID + ".pdf",
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
+  }
+</script>
+
+</body>
+</html>
