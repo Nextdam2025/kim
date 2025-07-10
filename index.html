@@ -5,65 +5,73 @@
   <title>Valenveras – Cannabis Test Report Builder</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
-  <!-- Styles (unchanged) -->
+  <!-- ───── STYLES ───── -->
   <style>
     :root {
       --bg:#dff2fd; --primary:#1e3d59; --accent:#64a60a;
       --text:#1e3d59; --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
     }
-    *{box-sizing:border-box;font-family:var(--font)}
-    body{margin:0;padding:1rem;background:var(--bg);color:var(--text)}
-    #container{max-width:880px;margin:auto}
-    .card{background:#fff;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;
-          box-shadow:0 2px 8px rgba(0,0,0,0.1)}
-    .step-badge{display:inline-block;background:var(--primary);color:#fff;
-                border-radius:50%;width:26px;height:26px;text-align:center;
-                line-height:26px;margin-right:.5rem;font-weight:600}
-    .field{margin-bottom:.8rem}
-    .field label{display:block;font-weight:600;margin-bottom:.3rem}
+    * { box-sizing:border-box; font-family:var(--font) }
+    body { margin:0; padding:1rem; background:var(--bg); color:var(--text) }
+    #container { max-width:880px; margin:auto }
+
+    /* Wizard cards */
+    .card { background:#fff; border-radius:8px; padding:1rem 1.25rem; margin:1rem 0;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1) }
+    .step-badge { display:inline-block; background:var(--primary); color:#fff;
+                  border-radius:50%; width:26px; height:26px; text-align:center;
+                  line-height:26px; margin-right:.5rem; font-weight:600 }
+    .field { margin-bottom:.8rem }
+    .field label { display:block; font-weight:600; margin-bottom:.3rem }
     .field input[type="text"],
     .field input[type="date"],
-    .field input[type="file"]{
-      width:100%;padding:.5rem;border:2px solid var(--primary);
-      border-radius:6px;font-size:1rem
+    .field input[type="file"] {
+      width:100%; padding:.5rem; border:2px solid var(--primary);
+      border-radius:6px; font-size:1rem;
     }
-    .btn{background:var(--primary);color:#fff;border:none;
-         padding:.6rem 1.25rem;border-radius:6px;
-         font-weight:600;cursor:pointer;margin-top:.5rem}
-    .btn:disabled{opacity:.5;cursor:default}
-    #uploader{border:2px dashed var(--primary);padding:2.5rem 1rem;
-              text-align:center;border-radius:8px;margin-top:.5rem;background:#fff;}
-    #uploader.dragover{background:rgba(30,61,89,0.1)}
-    #report-card{background:#fff;width:800px;margin:2rem auto;
-                 border-radius:12px;padding:1.5rem;
-                 box-shadow:0 4px 14px rgba(0,0,0,0.15)}
-    header.report-header{display:flex;align-items:center;justify-content:space-between}
-    header.report-header img.logo{height:60px;object-fit:contain}
-    h1.title{margin:0;font-size:2rem;text-align:center;line-height:1.1}
-    h1.title small{display:block;font-size:1rem;font-weight:normal}
-    #report-date{text-align:center;margin:.5rem 0 1rem;font-weight:500}
-    .divider{height:2px;background:var(--primary);margin:1rem 0}
-    .info-grid{display:flex;justify-content:space-between;gap:1rem}
-    .info-grid .info-text p{margin:.3rem 0}
-    .info-grid img.sample-photo{max-width:180px;border-radius:6px}
-    h2.section-title{margin-bottom:.5rem;color:var(--primary)}
-    table{width:100%;border-collapse:collapse;margin-bottom:1rem}
-    th,td{padding:.6rem;border:1px solid #e0e0e0}
-    th{background:var(--primary);color:#fff;text-align:left}
-    .terp-row{display:flex;align-items:center;gap:.5rem;margin:.3rem 0}
-    .terp-bar{flex:1;height:16px;background:#e0e0e0;
-              border-radius:8px;overflow:hidden;position:relative}
-    .terp-fill{height:100%;border-radius:8px;width:0;
-               transition:width .6s ease}
-    .terp-val{width:3.5rem;text-align:right;font-weight:600}
-    footer{margin-top:1rem;font-size:.85rem;line-height:1.4}
-    .disclaimer{font-size:.85rem;line-height:1.4;margin-top:1rem}
-    .qr{text-align:center;margin-top:1rem}
-    .no-print{text-align:center;margin-top:1rem}
-    @media print{.no-print{display:none!important}}
+    .btn { background:var(--primary); color:#fff; border:none;
+           padding:.6rem 1.25rem; border-radius:6px;
+           font-weight:600; cursor:pointer; margin-top:.5rem }
+    .btn:disabled { opacity:.5; cursor:default }
+
+    /* Uploader */
+    #uploader {
+      border:2px dashed var(--primary); padding:2.5rem 1rem;
+      text-align:center; border-radius:8px; margin-top:.5rem; background:#fff;
+      cursor:pointer;
+    }
+    #uploader.dragover { background:rgba(30,61,89,0.1) }
+
+    /* Report */
+    #report-card { background:#fff; width:800px; margin:2rem auto;
+                   border-radius:12px; padding:1.5rem;
+                   box-shadow:0 4px 14px rgba(0,0,0,0.15) }
+    header.report-header { display:flex; align-items:center; justify-content:space-between }
+    header.report-header img.logo { height:60px; object-fit:contain }
+    h1.title { margin:0; font-size:2rem; text-align:center; line-height:1.1 }
+    h1.title small { display:block; font-size:1rem; font-weight:normal }
+    #report-date { text-align:center; margin:.5rem 0 1rem; font-weight:500 }
+    .divider { height:2px; background:var(--primary); margin:1rem 0 }
+    .info-grid { display:flex; justify-content:space-between; gap:1rem }
+    .info-grid .info-text p { margin:.3rem 0 }
+    .info-grid img.sample-photo { max-width:180px; border-radius:6px }
+    h2.section-title { margin-bottom:.5rem; color:var(--primary) }
+    table { width:100%; border-collapse:collapse; margin-bottom:1rem }
+    th, td { padding:.6rem; border:1px solid #e0e0e0 }
+    th { background:var(--primary); color:#fff; text-align:left }
+    .terp-row { display:flex; align-items:center; gap:.5rem; margin:.3rem 0 }
+    .terp-bar { flex:1; height:16px; background:#e0e0e0;
+               border-radius:8px; overflow:hidden; position:relative }
+    .terp-fill { height:100%; border-radius:8px; width:0;
+                 transition:width .6s ease }
+    .terp-val { width:3.5rem; text-align:right; font-weight:600 }
+    .disclaimer { font-size:.85rem; line-height:1.4; margin-top:1rem }
+    .qr { text-align:center; margin-top:1rem }
+    .no-print { text-align:center; margin-top:1rem }
+    @media print { .no-print { display:none!important } }
   </style>
 
-  <!-- Libraries -->
+  <!-- ───── LIBRARIES ───── -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
@@ -78,7 +86,7 @@
 <body>
   <div id="container">
     <!-- STEP 1 -->
-    <section class="card">
+    <section id="step1" class="card">
       <h3><span class="step-badge">1</span>Customer & Sample</h3>
       <div class="field">
         <label for="custName">Dispensary Name</label>
@@ -135,80 +143,82 @@
   </div>
 
   <script>
-    const $ = s=>document.querySelector(s);
+    const $ = s => document.querySelector(s);
 
-    // STEP 1 → enable Next
-    const cname=$('#custName'), sid=$('#sampleID'), sname=$('#sampleName'),
-          btn2=$('#toStep2');
-    function chk1(){ btn2.disabled = !(cname.value.trim() && sid.value.trim() && sname.value.trim()); }
-    [cname,sid,sname].forEach(el=>el.addEventListener('input', chk1));
-    btn2.onclick = ()=> $('#step2').hidden=false;
+    // STEP 1 → enable Next and hide Step1 on click
+    const cname = $('#custName'), sid = $('#sampleID'), sname = $('#sampleName'),
+          btn2 = $('#toStep2');
+    function chk1() {
+      btn2.disabled = !(cname.value.trim() && sid.value.trim() && sname.value.trim());
+    }
+    [cname,sid,sname].forEach(el => el.addEventListener('input', chk1));
+    btn2.onclick = () => {
+      $('#step1').hidden = true;
+      $('#step2').hidden = false;
+    };
 
-       // STEP 2 UI
-   const up = $('#uploader'),
-         fileIn = $('#fileInput'),
-         browse = $('#browseLink');
+    // STEP 2 UI: clickable + drag/drop
+    const up = $('#uploader'),
+          fileIn = $('#fileInput'),
+          browse = $('#browseLink');
 
-+  // make the entire uploader clickable
-   browse.onclick = e => { e.preventDefault(); fileIn.click() };
-+  up.addEventListener('click', () => fileIn.click());
+    // make whole zone clickable
+    browse.onclick = e => { e.preventDefault(); fileIn.click(); };
+    up.addEventListener('click', () => fileIn.click());
 
-   ['dragenter','dragover'].forEach(ev =>
-     up.addEventListener(ev, e => {
-       e.preventDefault();
-       up.classList.add('dragover');
-     })
-   );
-   ['dragleave','drop'].forEach(ev =>
-     up.addEventListener(ev, e => {
-       e.preventDefault();
-       up.classList.remove('dragover');
-       if (ev === 'drop') handleFiles(e.dataTransfer.files);
-     })
-   );
-   fileIn.onchange = e => {
-+    console.log('File(s) selected:', e.target.files);
-     handleFiles(e.target.files);
-   };
+    ['dragenter','dragover'].forEach(ev =>
+      up.addEventListener(ev, e => {
+        e.preventDefault(); up.classList.add('dragover');
+      })
+    );
+    ['dragleave','drop'].forEach(ev =>
+      up.addEventListener(ev, e => {
+        e.preventDefault(); up.classList.remove('dragover');
+        if (ev === 'drop') handleFiles(e.dataTransfer.files);
+      })
+    );
+    fileIn.onchange = e => {
+      console.log('File(s) selected:', e.target.files);
+      handleFiles(e.target.files);
+    };
 
     // Parsers
-    const ext = f=>f.name.split('.').pop().toLowerCase();
-    const parseCSV = f=>new Promise((res,rej)=>
-      Papa.parse(f,{header:true,skipEmptyLines:true,complete:res,error:rej})
+    const ext = f => f.name.split('.').pop().toLowerCase();
+    const parseCSV = f => new Promise((res, rej) =>
+      Papa.parse(f, { header:true, skipEmptyLines:true, complete: res, error: rej })
     );
-    const parseXLSX = f=>new Promise((res,rej)=>{
-      const r=new FileReader();
-      r.onload=e=>{
-        const wb=XLSX.read(e.target.result,{type:'binary'});
+    const parseXLSX = f => new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => {
+        const wb = XLSX.read(e.target.result, { type:'binary' });
         res(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
       };
-      r.onerror=rej; r.readAsBinaryString(f);
+      r.onerror = rej;
+      r.readAsBinaryString(f);
     });
     async function parsePDF(f){
-      const pdf = await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
-      let txt='';
-      for(let p=1;p<=pdf.numPages;p++){
-        const ct=await (await pdf.getPage(p)).getTextContent();
-        txt += ct.items.map(i=>i.str).join(' ') + '\\n';
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
+      let txt = '';
+      for(let p=1; p<=pdf.numPages; p++){
+        const ct = await (await pdf.getPage(p)).getTextContent();
+        txt += ct.items.map(i => i.str).join(' ') + '\\n';
       }
-      const keys=[
-        "thc total","thca","cbd total","cbda","cbg total",
-        "total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
-        "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene",
-        "moisture","aw"
-      ];
-      const summary={};
-      keys.forEach(key=>{
-        const re=new RegExp(key+"\\\\s*[:=]?\\\\s*([0-9]+(?:[\\\\.,][0-9]+)?)%?","i");
-        const m=txt.match(re);
-        if(m) summary[key]=m[1].replace(",",".");
+      const keys = ["thc total","thca","cbd total","cbda","cbg total",
+                    "total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
+                    "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene",
+                    "moisture","aw"];
+      const summary = {};
+      keys.forEach(key => {
+        const re = new RegExp(key+"\\\\s*[:=]?\\\\s*([0-9]+(?:[\\\\.,][0-9]+)?)%?","i");
+        const m = txt.match(re);
+        if(m) summary[key] = m[1].replace(",",".");
       });
       return summary;
     }
 
     async function handleFiles(files){
-      const list=[...files];
-      let data={};
+      const list = [...files];
+      let data = {};
       if(list.some(f=>ext(f)==='csv')){
         data = (await parseCSV(list.find(f=>ext(f)==='csv')))[0];
       } else if(list.some(f=>['xls','xlsx'].includes(ext(f)))){
@@ -222,20 +232,20 @@
     }
 
     function buildReport(d){
-      const logoF=$('#custLogo').files[0],
-            logoURL=logoF?URL.createObjectURL(logoF):null,
-            photoF=$('#samplePhoto').files[0],
-            photoURL=photoF?URL.createObjectURL(photoF):null;
-      const sidV=$('#sampleID').value.trim(),
-            snameV=$('#sampleName').value.trim(),
-            hdV=$('#harvestDate').value.trim(),
-            ptV=$('#plantType').value.trim(),
-            ftV=$('#floweringTime').value.trim();
+      const logoF = $('#custLogo').files[0],
+            logoURL = logoF? URL.createObjectURL(logoF) : null,
+            photoF = $('#samplePhoto').files[0],
+            photoURL = photoF? URL.createObjectURL(photoF): null;
+      const sidV = $('#sampleID').value.trim(),
+            snameV = $('#sampleName').value.trim(),
+            hdV = $('#harvestDate').value.trim(),
+            ptV = $('#plantType').value.trim(),
+            ftV = $('#floweringTime').value.trim();
 
-      const card=$('#report-card');
-      card.innerHTML=`
+      const card = $('#report-card');
+      card.innerHTML = `
         <header class="report-header">
-          ${logoURL?`<img class="logo" src="${logoURL}" alt="Customer">`:''}
+          ${logoURL? `<img class="logo" src="${logoURL}" alt="Customer">` : ''}
           <h1 class="title">CANNABIS TEST REPORT<br><small>By Valenveras</small></h1>
           <img class="logo" src="https://valenveras.com/wp-content/uploads/2023/03/valenveras_4.0_Mesa-de-trabajo-1-copia-e1678396530601-1536x293.png" alt="Valenveras">
         </header>
@@ -249,14 +259,14 @@
             <p><strong>Plant Type:</strong> ${d['Plant Type']||ptV}</p>
             <p><strong>Flowering Time:</strong> ${d['Flowering Time']||ftV}</p>
           </div>
-          ${photoURL?`<img class="sample-photo" src="${photoURL}" alt="${snameV}">`:''}
+          ${photoURL? `<img class="sample-photo" src="${photoURL}" alt="${snameV}">` : ''}
         </div>
         <div class="divider"></div>
         <h2 class="section-title">CANNABINOIDS</h2>
         <div class="grid-two">
           ${['thc total','thca','cbd total','cbda','cbg total'].map(k=>{
             const v=d[k]||d[k.toLowerCase()]||'';
-            return v?`<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>`:'';
+            return v? `<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>` : '';
           }).join('')}
         </div>
         <div class="divider"></div>
@@ -267,7 +277,7 @@
         <div class="grid-two" style="max-width:300px">
           ${['moisture','aw'].map(k=>{
             const v=d[k]||d[k.toLowerCase()]||'';
-            return v?`<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>`:'';
+            return v? `<div><span>${k.toUpperCase()}</span><span>${v}%</span></div>` : '';
           }).join('')}
         </div>
         <div class="divider"></div>
@@ -278,46 +288,56 @@
           <div id="qrContainer" class="qr"></div>
         </footer>
       `;
-      // terpene bars
-      const wrap=$('#terpene-wrapper');
-      const terps=["total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
-                   "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene"];
-      const vals=terps.map(k=>parseFloat(d[k]||0));
-      const mx=Math.max(...vals,1);
-      terps.forEach((k,i)=>{
-        const pct=(vals[i]/mx*100)+'%';
-        wrap.insertAdjacentHTML('beforeend',`
+
+      // render terpene bars
+      const wrap = $('#terpene-wrapper'),
+            terps = ["total terpenes","limonene","b-caryophyllene","g-elemene","b-mircene",
+                     "linalool","a-humulene","eudesma","b-pinene","a-pinene","terpinolene"],
+            vals = terps.map(k=> parseFloat(d[k]||0)),
+            mx = Math.max(...vals,1);
+
+      terps.forEach((k,i)=> {
+        const pct = (vals[i]/mx*100) + '%';
+        wrap.insertAdjacentHTML('beforeend', `
           <div class="terp-row">
             <span>${k.replace(/(^|\\s)\\w/g,m=>m.toUpperCase())}</span>
             <div class="terp-bar"><div class="terp-fill" style="width:${pct};background:var(--accent)"></div></div>
-            <span class="terp-val">${vals[i]?vals[i]+'%':'---'}</span>
+            <span class="terp-val">${vals[i]? vals[i]+'%' : '---'}</span>
           </div>`);
       });
-      // QR
-      new QRCode($('#qrContainer'),{
-        text:`https://nextdam2025.github.io/kim/reports/${sidV}.html`,
-        width:120,height:120
+
+      // generate QR
+      new QRCode($('#qrContainer'), {
+        text: `https://nextdam2025.github.io/kim/reports/${sidV}.html`,
+        width: 120, height: 120
       });
 
-      card.hidden=false; $('#dlHtml').hidden=false; $('#dlPdf').hidden=false;
+      card.hidden = false;
+      $('#dlHtml').hidden = false;
+      $('#dlPdf').hidden = false;
     }
 
     // Download HTML
-    $('#dlHtml').onclick=()=>{
-      const sid=$('#sampleID').value.trim()||'report';
-      const html="<!DOCTYPE html><html><head><meta charset='utf-8'><title>"+sid+"</title><style>"+
-                 document.querySelector('head style').innerHTML+
-                 "</style></head><body>"+$('#report-card').outerHTML+"</body></html>";
-      const blob=new Blob([html],{type:'text/html'}),a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);a.download=sid+'.html';a.click();
+    $('#dlHtml').onclick = () => {
+      const sid = $('#sampleID').value.trim() || 'report';
+      const html = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>"+sid+"</title><style>"
+                 + document.querySelector('head style').innerHTML
+                 + "</style></head><body>"
+                 + $('#report-card').outerHTML
+                 + "</body></html>";
+      const blob = new Blob([html], { type:'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = sid + '.html';
+      a.click();
     };
 
     // Download PDF
-    $('#dlPdf').onclick=()=>{
-      const sid=$('#sampleID').value.trim()||'report';
+    $('#dlPdf').onclick = () => {
+      const sid = $('#sampleID').value.trim() || 'report';
       html2pdf().set({
         margin:[0.5,0.5,0.5,0.5],
-        filename:sid+'.pdf',
+        filename: sid + '.pdf',
         html2canvas:{scale:2,useCORS:true,allowTaint:true},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
       }).from($('#report-card')).save();
