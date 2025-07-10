@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cannabis Test Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Helvetica, sans-serif;
+      margin: 2rem;
+      background-color: #f0f7f4;
+      color: #2c3e50;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      height: 70px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.2rem;
+    }
+    .section {
+      margin: 2rem 0;
+    }
+    .terp-row {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+    .terp-bar {
+      flex: 1;
+      background: #ddd;
+      height: 16px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0 0.5rem;
+    }
+    .terp-fill {
+      height: 100%;
+      width: 60%;
+      background: #64a60a;
+    }
+    .qr {
+      margin-top: 2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://via.placeholder.com/100x70?text=Customer" class="logo" />
+    <img src="https://via.placeholder.com/100x70?text=Valenveras" class="logo" />
+  </div>
+  <h1>CANNABIS TEST REPORT</h1>
+  <div class="section">
+    <h2>Sample Info</h2>
+    <p><strong>Sample Name:</strong> El Dorado</p>
+    <p><strong>Created at:</strong> 2025-07-02</p>
+    <p><strong>Plant Type:</strong> Sativa Dominant</p>
+  </div>
+  <div class="section">
+    <h2>Terpenes</h2>
+    <div class="terp-row">
+      <span>Limonene</span>
+      <div class="terp-bar"><div class="terp-fill" style="width:40%;background:#FFD700;"></div></div>
+      <span>0.4%</span>
+    </div>
+    <div class="terp-row">
+      <span>B-Myrcene</span>
+      <div class="terp-bar"><div class="terp-fill" style="width:80%;background:#8A2BE2;"></div></div>
+      <span>0.8%</span>
+    </div>
+  </div>
+  <div class="section qr">
+    <h3>Scan QR to view online</h3>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://valenveras.github.io/reports/sample-report.html" alt="QR Code" />
+    <p><a href="https://valenveras.github.io/reports/sample-report.html">https://valenveras.github.io/reports/sample-report.html</a></p>
+  </div>
+</body>
+</html>
