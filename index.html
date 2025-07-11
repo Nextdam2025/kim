@@ -7,301 +7,100 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      --primary: #2e7d32;
-      --secondary: #aed581;
-      --accent: #ffa726;
-      --bg-light: #f0f4c3;
-      --text-dark: #263238;
-      --header-bg: linear-gradient(90deg, #2e7d32 0%, #81c784 100%);
-      --table-stripe: rgba(174, 213, 129, 0.3);
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-    }
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--header-bg);
-      padding: 20px;
-      border-radius: 8px;
-      color: #fff;
-    }
-    .header h1 {
-      font-size: 2rem;
-      margin: 0;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    }
-    .header img.logo {
-      height: 60px;
-    }
-    .header img.customer-logo {
-      height: 50px;
-      margin-left: 15px;
-    }
-    .upload-section {
-      margin: 20px 0;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      background: #fffde7;
-      padding: 15px;
-      border-radius: 8px;
-      border: 2px dashed var(--secondary);
-    }
-    .upload-section label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 4px;
-    }
-    .upload-section input[type=file] {
-      width: 100%;
-      padding: 8px;
-      border: 2px dashed var(--secondary);
-      border-radius: 8px;
-      background: #fafafa;
-      cursor: pointer;
-    }
-    #generateBtn, #downloadBtn {
-      background-color: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-      margin-top: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    #generateBtn:hover, #downloadBtn:hover {
-      background-color: #fb8c00;
-    }
-    .report-container {
-      margin-top: 30px;
-      animation: fadeIn 0.8s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);}  
-    }
-    .report-header {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-      background: var(--secondary);
-      padding: 15px;
-      border-radius: 8px;
-      color: var(--text-dark);
-    }
-    .report-header .field {
-      font-size: 0.9rem;
-    }
-    .section {
-      margin-top: 40px;
-    }
-    .section h2 {
-      color: var(--primary);
-      border-bottom: 3px solid var(--accent);
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      background: #fff;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: center;
-    }
-    th {
-      background-color: var(--primary);
-      color: #fff;
-      font-weight: bold;
-    }
-    tr:nth-child(even) td {
-      background-color: var(--table-stripe);
-    }
-    .chart-container {
-      position: relative;
-      width: 100%;
-      height: 400px;
-      margin-top: 20px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    .disclaimer {
-      margin-top: 40px;
-      font-size: 0.8rem;
-      color: #666;
-      text-align: center;
-    }
-  </style>
+    :root { --primary:#2e7d32;--secondary:#aed581;--accent:#ffa726;--bg-light:#f0f4c3;--text-dark:#263238;--header-bg:linear-gradient(90deg,#2e7d32 0%,#81c784 100%);--table-stripe:rgba(174,213,129,0.3);}    
+    body{margin:0;font-family:'Segoe UI',sans-serif;background:var(--bg-light);color:var(--text-dark);}    
+    .container{max-width:1000px;margin:40px auto;padding:20px;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);}    
+    .header{display:flex;align-items:center;justify-content:space-between;background:var(--header-bg);padding:20px;border-radius:8px;color:#fff;}    
+    .header h1{margin:0;font-size:2rem;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}    
+    .header img.logo{height:60px;}    
+    .header img.customer-logo{height:50px;margin-left:15px;border:2px solid #fff;border-radius:4px;}    
+    .controls{margin:20px 0;display:flex;gap:20px;flex-wrap:wrap;background:#fffde7;padding:15px;border-radius:8px;border:2px dashed var(--secondary);}    
+    .controls label{font-weight:bold;display:block;margin-bottom:4px;}    
+    .controls input[type=file]{width:100%;padding:8px;border:2px dashed var(--secondary);border-radius:8px;background:#fafafa;cursor:pointer;}    
+    button{background:var(--accent);color:#fff;border:none;padding:12px 24px;font-size:1rem;border-radius:8px;cursor:pointer;transition:background 0.3s;box-shadow:0 2px 6px rgba(0,0,0,0.2);}    
+    button:hover{background:#fb8c00;}    
+    .report{display:none;margin-top:30px;animation:fadeIn 0.8s ease-out;}    
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}    
+    .report-header{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;background:var(--secondary);padding:15px;border-radius:8px;}    
+    .report-header .field{font-size:0.9rem;}    
+    .section{margin-top:40px;}    
+    .section h2{color:var(--primary);border-bottom:3px solid var(--accent);padding-bottom:6px;margin-bottom:12px;}    
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:4px;overflow:hidden;}    
+    th,td{padding:12px;text-align:center;}    
+    th{background:var(--primary);color:#fff;}    
+    tr:nth-child(even) td{background:var(--table-stripe);}    
+    .chart-container{position:relative;width:100%;height:auto;margin-top:20px;background:#fff;padding:20px;border-radius:8px;}    
+    .disclaimer{margin-top:40px;font-size:0.8rem;color:#666;text-align:center;}  </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>CANNABIS TEST REPORT</h1>
-      <img src="data:image/jpeg;base64,/9j/..." class="logo" alt="Valenveras Logo">
+      <div>
+        <img src="data:image/jpeg;base64,/9j/..." class="logo" alt="Valenveras Logo">
+        <img id="injectedLogo" class="customer-logo" alt="Customer Logo" style="display:none;">
+      </div>
     </div>
-    <div class="upload-section">
-      <div style="flex:1 1 300px;">
-        <label for="csvFile">Lab Results CSV</label>
-        <input type="file" id="csvFile" accept=".csv">
-      </div>
-      <div style="flex:1 1 300px;">
-        <label for="customerLogo">Customer Logo (optional)</label>
-        <input type="file" id="customerLogo" accept="image/*">
-      </div>
+    <div id="controls" class="controls">
+      <div style="flex:1 1 300px;"><label for="csvFile">Select CSV File</label><input type="file" id="csvFile" accept=".csv"></div>
+      <div style="flex:1 1 300px;"><label for="customerLogo">Select Logo (optional)</label><input type="file" id="customerLogo" accept="image/*"></div>
     </div>
     <button id="generateBtn">Generate Report</button>
 
-    <div id="report" class="report-container" style="display:none;">
-      <div class="report-header" id="sampleInfo"></div>
+    <div id="report" class="report">
+      <div id="sampleInfo" class="report-header"></div>
 
-      <div class="section" id="cannabinoidsSection">
-        <h2>Cannabinoids Profile</h2>
-        <table id="cannabinoidsTable">
-          <thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div class="chart-container"><canvas id="cannabinoidChart"></canvas></div>
+      <div id="cannabinoidsSection" class="section"><h2>Cannabinoids Profile</h2>
+        <table id="cannabinoidsTable"><thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead><tbody></tbody></table>
+        <div class="chart-container" id="cannabinoidContainer"><canvas id="cannabinoidChart"></canvas></div>
       </div>
 
-      <div class="section" id="terpenesSection">
-        <h2>Terpenes Profile</h2>
-        <table id="terpenesTable">
-          <thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div class="chart-container"><canvas id="terpeneChart"></canvas></div>
+      <div id="terpenesSection" class="section"><h2>Terpenes Profile</h2>
+        <table id="terpenesTable"><thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead><tbody></tbody></table>
+        <div class="chart-container" id="terpeneContainer"><canvas id="terpeneChart"></canvas></div>
       </div>
 
-      <div class="section" id="moistureSection">
-        <h2>Moisture &amp; Water Activity</h2>
+      <div class="section"><h2>Moisture & Water Activity</h2>
         <p><strong>Moisture:</strong> <span id="moisture"></span></p>
         <p><strong>aW:</strong> <span id="aw"></span></p>
       </div>
 
-      <button id="downloadBtn">Download Full Report</button>
-      <p class="disclaimer">This is an indicative report. Not certified for legal or medical use.</p>
+      <button id="downloadBtn">Download Report</button>
+      <p class="disclaimer">Indicative report only; not for legal or medical use.</p>
     </div>
   </div>
 
   <script>
-    // CSV parser
-    function parseCSV(text) {
-      const [h, d] = text.trim().split(/\r?\n/);
-      const headers = h.replace(/"/g, '').split(',');
-      const values = d.replace(/"/g, '').split(',');
-      return headers.reduce((obj, key, i) => ({ ...obj, [key.trim()]: values[i]?.trim() || '' }), {});
+    function parseCSV(txt) {
+      const [h,d] = txt.trim().split(/\r?\n/);
+      const keys = h.replace(/"/g,'').split(',');
+      const vals = d.replace(/"/g,'').split(',');
+      return keys.reduce((o,k,i)=>{o[k.trim()]=vals[i]?.trim()||'';return o;},{});
     }
-
-    // Field mappings
-    const sampleMapping = [
-      { label: 'Sample Name', key: 'Sample Name' },
-      { label: 'Created At', key: 'Created At (UTC)' },
-      { label: 'Device ID', key: 'Device ID' },
-      { label: 'Created By', key: 'Created By' },
-      { label: 'On Behalf', key: 'On Behalf' },
-      { label: 'Lots Name', key: 'Lots Name' }
-    ];
-    const cannabinoidParams = [
-      { key: 'THC Total (%)', name: 'THC Total', range: '0.00 - 29.00' },
-      { key: 'THCa(%)', name: 'THCa', range: '0.00 - 100.00' },
-      { key: 'CBD Total (%)', name: 'CBD Total', range: '0.00 - 30.00' },
-      { key: 'CBDa(%)', name: 'CBDa', range: '0.00 - 100.00' },
-      { key: 'CBG Total(%)', name: 'CBG Total', range: '0.00 - 2.50' },
-      { key: 'Total Terpenes(%)', name: 'Total Terpenes', range: '0.00 - 3.00' }
-    ];
-    const terpeneParams = [
-      { key: 'Limonene(%)', name: 'Limonene', range: '0.00 - 3.00' },
-      { key: 'B-Caryophyllene(%)', name: 'B-Caryophyllene', range: '0.00 - 2.00' },
-      { key: 'G-elemene(%)', name: 'G-Elemene', range: '0.00 - 0.80' },
-      { key: 'B-Mircene(%)', name: 'B-Myrcene', range: '0.00 - 10.00' },
-      { key: 'Linalool(%)', name: 'Linalool', range: '0.00 - 1.00' },
-      { key: 'A-Humulene(%)', name: 'A-Humulene', range: '0.00 - 0.50' },
-      { key: 'Eudesma(%)', name: 'Eudesma', range: '0.00 - 1.00' },
-      { key: 'B-Pinene(%)', name: 'B-Pinene', range: '0.00 - 0.10' },
-      { key: 'A-Pinene(%)', name: 'A-Pinene', range: '0.00 - 0.30' },
-      { key: 'Terpinolene(%)', name: 'Terpinolene', range: '0.00 - 0.20' }
-    ];
-
-    // Populate sample info
-    function populateSampleInfo(data) {
-      document.getElementById('sampleInfo').innerHTML = sampleMapping.map(item =>
-        `<div class="field"><strong>${item.label}:</strong> ${data[item.key] || '--'}</div>`
-      ).join('');
-    }
-
-    // Fill table
-    function fillTable(id, rows) {
-      document.querySelector(`${id} tbody`).innerHTML = rows.map(r =>
-        `<tr><td>${r.name}</td><td>${r.value}</td><td>${r.range}</td></tr>`
-      ).join('');
-    }
-
-    // Chart helper
-    function createBarChart(canvasId, labels, data, title) {
-      const bgColors = labels.map((_, i) => `rgba(${50 + i*20}, ${150 - i*10}, ${60 + i*15}, 0.7)`);
-      new Chart(document.getElementById(canvasId), {
-        type: 'bar',
-        data: { labels, datasets: [{ label: title, data: data.map(v => parseFloat(v) || 0), backgroundColor: bgColors }] },
-        options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title } } }
-      });
-    }
-
-    // Generate handler
-    document.getElementById('generateBtn').addEventListener('click', () => {
-      const f = document.getElementById('csvFile').files[0];
-      if (!f) return alert('Select a lab results CSV file.');
-      const r = new FileReader();
-      r.onload = e => {
-        const data = parseCSV(e.target.result);
-        populateSampleInfo(data);
-        const canRows = cannabinoidParams.map(p => ({ name: p.name, value: data[p.key] || '0', range: p.range }));
-        fillTable('#cannabinoidsTable', canRows);
-        createBarChart('cannabinoidChart', canRows.map(r=>r.name), canRows.map(r=>r.value), 'Cannabinoids (%)');
-        const terpRows = terpeneParams.map(p => ({ name: p.name, value: data[p.key] || '0', range: p.range }));
-        fillTable('#terpenesTable', terpRows);
-        createBarChart('terpeneChart', terpRows.map(r=>r.name), terpRows.map(r=>r.value), 'Terpenes (%)');
-        document.getElementById('moisture').textContent = data['Moisture(%)'] ? data['Moisture(%)'] + '%' : '--';
-        document.getElementById('aw').textContent = data['aW(%)'] || '--';
-        const lg = document.getElementById('customerLogo').files[0];
-        if (lg) { const lr2 = new FileReader(); lr2.onload = ev => {
-            const img2 = document.createElement('img'); img2.src = ev.target.result;
-            img2.className = 'customer-logo'; document.querySelector('.header').appendChild(img2);
-          }; lr2.readAsDataURL(lg);
-        }
-        document.getElementById('report').style.display = 'block';
-        window.reportHTML = '<!DOCTYPE html>' + document.documentElement.outerHTML;
-      };
-      r.readAsText(f);
-    });
-
-    // Download handler
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-      const html = window.reportHTML; if (!html) return;
-      const b = new Blob([html], { type: 'text/html' }); const a = document.createElement('a');
-      a.href = URL.createObjectURL(b); a.download = 'cannabis_report.html'; a.click();
-    });
+    const sampleMap=[{label:'Sample Name',key:'Sample Name'},{label:'Created At',key:'Created At (UTC)'},{label:'Device ID',key:'Device ID'},{label:'Created By',key:'Created By'},{label:'On Behalf',key:'On Behalf'},{label:'Lots Name',key:'Lots Name'}];
+    const cannabinoidParams=[{key:'THC Total (%)',name:'THC Total',range:'0.00-29.00'},{key:'THCa(%)',name:'THCa',range:'0.00-100.00'},{key:'CBD Total (%)',name:'CBD Total',range:'0.00-30.00'},{key:'CBDa(%)',name:'CBDa',range:'0.00-100.00'},{key:'CBG Total(%)',name:'CBG Total',range:'0.00-2.50'},{key:'Total Terpenes(%)',name:'Total Terpenes',range:'0.00-3.00'}];
+    const terpeneParams=[{key:'Limonene(%)',name:'Limonene',range:'0.00-3.00'},{key:'B-Caryophyllene(%)',name:'B-Caryophyllene',range:'0.00-2.00'},{key:'G-elemene(%)',name:'G-Elemene',range:'0.00-0.80'},{key:'B-Mircene(%)',name:'B-Myrcene',range:'0.00-10.00'},{key:'Linalool(%)',name:'Linalool',range:'0.00-1.00'},{key:'A-Humulene(%)',name:'A-Humulene',range:'0.00-0.50'},{key:'Eudesma(%)',name:'Eudesma',range:'0.00-1.00'},{key:'B-Pinene(%)',name:'B-Pinene',range:'0.00-0.10'},{key:'A-Pinene(%)',name:'A-Pinene',range:'0.00-0.30'},{key:'Terpinolene(%)',name:'Terpinolene',range:'0.00-0.20'}];
+    function populateInfo(data){document.getElementById('sampleInfo').innerHTML=sampleMap.map(f=>`<div class="field"><strong>${f.label}:</strong> ${data[f.key]||'--'}</div>`).join('');}
+    function fillTable(id,rows){document.querySelector(id+' tbody').innerHTML=rows.map(r=>`<tr><td>${r.name}</td><td>${r.value}</td><td>${r.range}</td></tr>`).join('');}
+    function makeChart(id,labels,vals){const colors=labels.map((_,i)=>`rgba(${50+i*20},${150-i*10},${60+i*15},0.7)`);new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:[{data:vals.map(v=>parseFloat(v)||0),backgroundColor:colors}]},options:{responsive:true,plugins:{legend:{display:false}}}});}
+    document.getElementById('generateBtn').onclick=()=>{
+      const file=document.getElementById('csvFile').files[0];if(!file)return alert('Upload CSV.');
+      const rdr=new FileReader();rdr.onload=e=>{
+        const data=parseCSV(e.target.result);
+        populateInfo(data);
+        const can=cannabinoidParams.map(p=>({name:p.name,value:data[p.key]||'0',range:p.range}));fillTable('#cannabinoidsTable',can);
+        if(can.some(r=>parseFloat(r.value)>0)){makeChart('cannabinoidChart',can.map(r=>r.name),can.map(r=>r.value));}else{document.getElementById('cannabinoidContainer').style.display='none';}
+        const ter=terpeneParams.map(p=>({name:p.name,value:data[p.key]||'0',range:p.range}));fillTable('#terpenesTable',ter);
+        if(ter.some(r=>parseFloat(r.value)>0)){makeChart('terpeneChart',ter.map(r=>r.name),ter.map(r=>r.value));}else{document.getElementById('terpeneContainer').style.display='none';}
+        document.getElementById('moisture').textContent=data['Moisture(%)']?data['Moisture(%)']+'%':'--';document.getElementById('aw').textContent=data['aW(%)']||'--';
+        const lg=document.getElementById('customerLogo').files[0];if(lg){const lr=new FileReader();lr.onload=ev=>{const img=document.getElementById('injectedLogo');img.src=ev.target.result;img.style.display='inline-block';};lr.readAsDataURL(lg);}  
+        document.getElementById('controls').style.display='none';document.getElementById('generateBtn').style.display='none';
+        document.getElementById('report').style.display='block';
+        const snapHead=document.head.outerHTML;const snapBody=document.querySelector('.header').outerHTML+document.querySelector('.report').outerHTML;
+        window.reportHTML='<!DOCTYPE html><html>'+snapHead+'<body>'+snapBody+'</body></html>';
+      };rdr.readAsText(file);
+    };
+    document.getElementById('downloadBtn').onclick=()=>{if(!window.reportHTML)return;const b=new Blob([window.reportHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cannabis_report.html';a.click();};
   </script>
 </body>
 </html>
