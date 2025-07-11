@@ -8,11 +8,13 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #2a7d6a;
-      --secondary: #e0f1ed;
-      --accent: #297373;
-      --bg-light: #f7f7f7;
-      --text-dark: #333;
+      --primary: #2e7d32;
+      --secondary: #aed581;
+      --accent: #ffa726;
+      --bg-light: #f0f4c3;
+      --text-dark: #263238;
+      --header-bg: linear-gradient(90deg, #2e7d32 0%, #81c784 100%);
+      --table-stripe: rgba(174, 213, 129, 0.3);
     }
     body {
       margin: 0;
@@ -32,8 +34,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 3px solid var(--accent);
-      padding-bottom: 10px;
+      background: var(--header-bg);
+      padding: 20px;
+      border-radius: 8px;
+      color: #fff;
+    }
+    .header h1 {
+      font-size: 2rem;
+      margin: 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     .header img.logo {
       height: 60px;
@@ -42,16 +51,15 @@
       height: 50px;
       margin-left: 15px;
     }
-    .header h1 {
-      font-size: 2rem;
-      color: var(--primary);
-      margin: 0;
-    }
     .upload-section {
       margin: 20px 0;
       display: flex;
       gap: 20px;
       flex-wrap: wrap;
+      background: #fffde7;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px dashed var(--secondary);
     }
     .upload-section label {
       font-weight: bold;
@@ -76,9 +84,10 @@
       cursor: pointer;
       transition: background 0.3s;
       margin-top: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     #generateBtn:hover, #downloadBtn:hover {
-      background-color: var(--primary);
+      background-color: #fb8c00;
     }
     .report-container {
       margin-top: 30px;
@@ -94,6 +103,7 @@
       background: var(--secondary);
       padding: 15px;
       border-radius: 8px;
+      color: var(--text-dark);
     }
     .report-header .field {
       font-size: 0.9rem;
@@ -103,29 +113,39 @@
     }
     .section h2 {
       color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-      padding-bottom: 4px;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 6px;
       margin-bottom: 12px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
     }
     th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
       text-align: center;
     }
     th {
-      background-color: var(--secondary);
+      background-color: var(--primary);
+      color: #fff;
       font-weight: bold;
+    }
+    tr:nth-child(even) td {
+      background-color: var(--table-stripe);
     }
     .chart-container {
       position: relative;
       width: 100%;
       height: 400px;
       margin-top: 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
     }
     .disclaimer {
       margin-top: 40px;
@@ -186,17 +206,15 @@
   </div>
 
   <script>
-    // Parse CSV, strip quotes/newlines
+    // CSV parser
     function parseCSV(text) {
-      const [headerLine, dataLine] = text.trim().split(/\r?\n/);
-      const headers = headerLine.replace(/"/g, '').split(',');
-      const values = dataLine.replace(/"/g, '').split(',');
-      const data = {};
-      headers.forEach((h,i) => data[h.trim()] = values[i] ? values[i].trim() : '');
-      return data;
+      const [h, d] = text.trim().split(/\r?\n/);
+      const headers = h.replace(/"/g, '').split(',');
+      const values = d.replace(/"/g, '').split(',');
+      return headers.reduce((obj, key, i) => ({ ...obj, [key.trim()]: values[i]?.trim() || '' }), {});
     }
 
-    // Sample info mapping
+    // Field mappings
     const sampleMapping = [
       { label: 'Sample Name', key: 'Sample Name' },
       { label: 'Created At', key: 'Created At (UTC)' },
@@ -205,8 +223,6 @@
       { label: 'On Behalf', key: 'On Behalf' },
       { label: 'Lots Name', key: 'Lots Name' }
     ];
-
-    // Cannabinoid and terpene definitions
     const cannabinoidParams = [
       { key: 'THC Total (%)', name: 'THC Total', range: '0.00 - 29.00' },
       { key: 'THCa(%)', name: 'THCa', range: '0.00 - 100.00' },
@@ -230,70 +246,61 @@
 
     // Populate sample info
     function populateSampleInfo(data) {
-      const container = document.getElementById('sampleInfo');
-      container.innerHTML = sampleMapping.map(item => `
-        <div class="field"><strong>${item.label}:</strong> ${data[item.key]||'--'}</div>
-      `).join('');
+      document.getElementById('sampleInfo').innerHTML = sampleMapping.map(item =>
+        `<div class="field"><strong>${item.label}:</strong> ${data[item.key] || '--'}</div>`
+      ).join('');
     }
 
-    // Fill table rows
-    function fillTable(tableId, rows) {
-      document.querySelector(`${tableId} tbody`).innerHTML = rows.map(r => `
-        <tr><td>${r.name}</td><td>${r.value}</td><td>${r.range}</td></tr>
-      `).join('');
+    // Fill table
+    function fillTable(id, rows) {
+      document.querySelector(`${id} tbody`).innerHTML = rows.map(r =>
+        `<tr><td>${r.name}</td><td>${r.value}</td><td>${r.range}</td></tr>`
+      ).join('');
     }
 
-    // Create bar chart
-    function createBarChart(canvasId, labels, values, title) {
+    // Chart helper
+    function createBarChart(canvasId, labels, data, title) {
+      const bgColors = labels.map((_, i) => `rgba(${50 + i*20}, ${150 - i*10}, ${60 + i*15}, 0.7)`);
       new Chart(document.getElementById(canvasId), {
         type: 'bar',
-        data: { labels, datasets: [{ label: title, data: values.map(v => parseFloat(v)||0), backgroundColor: 'rgba(42,125,106,0.7)' }] },
+        data: { labels, datasets: [{ label: title, data: data.map(v => parseFloat(v) || 0), backgroundColor: bgColors }] },
         options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title } } }
       });
     }
 
-    // Generate report handler
+    // Generate handler
     document.getElementById('generateBtn').addEventListener('click', () => {
-      const file = document.getElementById('csvFile').files[0];
-      if (!file) return alert('Select a lab results CSV file.');
-      const reader = new FileReader();
-      reader.onload = e => {
+      const f = document.getElementById('csvFile').files[0];
+      if (!f) return alert('Select a lab results CSV file.');
+      const r = new FileReader();
+      r.onload = e => {
         const data = parseCSV(e.target.result);
-        // Sample info
         populateSampleInfo(data);
-        // Cannabinoids
-        const canRows = cannabinoidParams.map(p => ({ name: p.name, value: data[p.key]||'0', range: p.range }));
+        const canRows = cannabinoidParams.map(p => ({ name: p.name, value: data[p.key] || '0', range: p.range }));
         fillTable('#cannabinoidsTable', canRows);
         createBarChart('cannabinoidChart', canRows.map(r=>r.name), canRows.map(r=>r.value), 'Cannabinoids (%)');
-        // Terpenes
-        const terpRows = terpeneParams.map(p => ({ name: p.name, value: data[p.key]||'0', range: p.range }));
+        const terpRows = terpeneParams.map(p => ({ name: p.name, value: data[p.key] || '0', range: p.range }));
         fillTable('#terpenesTable', terpRows);
         createBarChart('terpeneChart', terpRows.map(r=>r.name), terpRows.map(r=>r.value), 'Terpenes (%)');
-        // Moisture & aW
         document.getElementById('moisture').textContent = data['Moisture(%)'] ? data['Moisture(%)'] + '%' : '--';
         document.getElementById('aw').textContent = data['aW(%)'] || '--';
-        // Optional customer logo
-        const logoFile = document.getElementById('customerLogo').files[0];
-        if (logoFile) {
-          const lr = new FileReader(); lr.onload = ev => {
-            const img = document.createElement('img'); img.src = ev.target.result;
-            img.className = 'customer-logo'; document.querySelector('.header').appendChild(img);
-          };
-          lr.readAsDataURL(logoFile);
+        const lg = document.getElementById('customerLogo').files[0];
+        if (lg) { const lr2 = new FileReader(); lr2.onload = ev => {
+            const img2 = document.createElement('img'); img2.src = ev.target.result;
+            img2.className = 'customer-logo'; document.querySelector('.header').appendChild(img2);
+          }; lr2.readAsDataURL(lg);
         }
         document.getElementById('report').style.display = 'block';
-        // Save snapshot for download
         window.reportHTML = '<!DOCTYPE html>' + document.documentElement.outerHTML;
       };
-      reader.readAsText(file);
+      r.readAsText(f);
     });
 
     // Download handler
     document.getElementById('downloadBtn').addEventListener('click', () => {
-      if (!window.reportHTML) return;
-      const blob = new Blob([window.reportHTML], { type: 'text/html' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'cannabis_report.html'; a.click();
+      const html = window.reportHTML; if (!html) return;
+      const b = new Blob([html], { type: 'text/html' }); const a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = 'cannabis_report.html'; a.click();
     });
   </script>
 </body>
