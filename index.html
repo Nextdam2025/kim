@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +27,12 @@
     <button id="download-pdf">Download PDF</button>
     <div id="preview"></div>
     <div class="qr-code" id="qr-code"></div>
-  </div>  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>  <script>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const preview = document.getElementById('preview');
@@ -34,33 +40,71 @@
     const htmlDownloadBtn = document.getElementById('download-html');
     const pdfDownloadBtn = document.getElementById('download-pdf');
 
-    const templatePath = 'template.html'; // Put your actual template HTML path here
     const githubBaseUrl = 'https://kimvalenveras.github.io/cannabis-report-tool';
 
+    const template = `
+      <h2>CANNABIS TEST REPORT</h2>
+      <p>By {{CreatedBy}}</p>
+      <p>{{CreatedAt}}</p>
+
+      <h3>Sample Information</h3>
+      <p><strong>Sample ID:</strong> {{SampleID}}</p>
+      <p><strong>Sample Name:</strong> {{SampleName}}</p>
+      <p><strong>Material Name:</strong> {{MaterialName}}</p>
+      <p><strong>Harvest Date:</strong> {{HarvestDate}}</p>
+      <p><strong>Plant Type:</strong> {{PlantType}}</p>
+      <p><strong>Flowering Time:</strong> {{FloweringTime}}</p>
+      <p><strong>Company:</strong> {{Company}}</p>
+      <p><strong>Created On Behalf of:</strong> {{CreatedOnBehalf}}</p>
+      <p><strong>Device ID:</strong> {{DeviceID}}</p>
+      <p><strong>Lot Name:</strong> {{LotName}}</p>
+      <p><strong>Supplier Name:</strong> {{SupplierName}}</p>
+      <p><strong>Location:</strong> {{Location}}</p>
+
+      <h3>Cannabinoids</h3>
+      <table>
+        <tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Range</th></tr>
+        <tr><td>THC Total</td><td>{{THCTotal}}</td><td>%</td><td>{{THCTotalRange}}</td></tr>
+        <tr><td>THCa</td><td>{{THCa}}</td><td>%</td><td>{{THCaRange}}</td></tr>
+        <tr><td>CBD Total</td><td>{{CBDTotal}}</td><td>%</td><td>{{CBDTotalRange}}</td></tr>
+        <tr><td>CBDa</td><td>{{CBDa}}</td><td>%</td><td>{{CBDaRange}}</td></tr>
+        <tr><td>CBG Total</td><td>{{CBGTotal}}</td><td>%</td><td>{{CBGTotalRange}}</td></tr>
+        <tr><td>Total Terpenes</td><td>{{TotalTerpenes}}</td><td>%</td><td>{{TotalTerpenesRange}}</td></tr>
+      </table>
+
+      <h3>Terpenes</h3>
+      <table>
+        <tr><td>Limonene</td><td>{{Limonene}}%</td><td>{{LimoneneRange}}</td></tr>
+        <tr><td>B-Caryophyllene</td><td>{{BCaryophyllene}}%</td><td>{{BCaryophylleneRange}}</td></tr>
+        <tr><td>g-Elemene</td><td>{{GElemene}}%</td><td>{{GElemeneRange}}</td></tr>
+        <tr><td>B-Myrcene</td><td>{{BMyrcene}}%</td><td>{{BMyrceneRange}}</td></tr>
+        <tr><td>Linalool</td><td>{{Linalool}}%</td><td>{{LinaloolRange}}</td></tr>
+        <tr><td>A-Humulene</td><td>{{AHumulene}}%</td><td>{{AHumuleneRange}}</td></tr>
+        <tr><td>Eudesma</td><td>{{Eudesma}}%</td><td>{{EudesmaRange}}</td></tr>
+        <tr><td>B-Pinene</td><td>{{BPinene}}%</td><td>{{BPineneRange}}</td></tr>
+        <tr><td>A-Pinene</td><td>{{APinene}}%</td><td>{{APineneRange}}</td></tr>
+        <tr><td>Terpinolene</td><td>{{Terpinolene}}%</td><td>{{TerpinoleneRange}}</td></tr>
+      </table>
+
+      <h3>Moisture Content</h3>
+      <p>Moisture: {{Moisture}}%</p>
+      <p>aW: {{aW}}</p>
+
+      <h4>Disclaimer</h4>
+      <p>This test result is intended to provide indicative information about the composition of cannabis. The results are not certified and cannot be used for legal, medical, or commercial purposes.</p>
+    `;
+
     dropZone.addEventListener('click', () => fileInput.click());
-
-    dropZone.addEventListener('dragover', e => {
-      e.preventDefault();
-      dropZone.style.borderColor = '#297373';
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '#ccc';
-    });
-
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#297373'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#ccc'; });
     dropZone.addEventListener('drop', e => {
-      e.preventDefault();
-      dropZone.style.borderColor = '#ccc';
+      e.preventDefault(); dropZone.style.borderColor = '#ccc';
       handleFile(e.dataTransfer.files[0]);
     });
-
-    fileInput.addEventListener('change', e => {
-      handleFile(e.target.files[0]);
-    });
+    fileInput.addEventListener('change', e => { handleFile(e.target.files[0]); });
 
     function handleFile(file) {
       if (!file.name.endsWith('.csv')) return alert('Only CSV files are supported.');
-
       Papa.parse(file, {
         header: true,
         complete: function(results) {
@@ -70,15 +114,12 @@
       });
     }
 
-    async function generateHTML(data) {
-      const response = await fetch(templatePath);
-      let html = await response.text();
-
+    function generateHTML(data) {
+      let html = template;
       Object.keys(data).forEach(key => {
         const regex = new RegExp(`{{\s*${key}\s*}}`, 'g');
         html = html.replace(regex, data[key]);
       });
-
       preview.innerHTML = `<iframe srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
       htmlDownloadBtn.onclick = () => downloadHTML(html);
       pdfDownloadBtn.onclick = () => downloadPDF(html);
@@ -98,7 +139,6 @@
       iframe.style.display = 'none';
       document.body.appendChild(iframe);
       iframe.srcdoc = html;
-
       iframe.onload = () => {
         html2pdf().from(iframe.contentDocument.body).save('cannabis-report.pdf');
         document.body.removeChild(iframe);
@@ -112,5 +152,6 @@
         if (!err) qrCodeContainer.appendChild(canvas);
       });
     }
-  </script></body>
+  </script>
+</body>
 </html>
