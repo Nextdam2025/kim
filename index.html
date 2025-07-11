@@ -1,156 +1,173 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cannabis Report Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; color: #1c1c1c; }
-    header { background: #297373; color: white; padding: 20px; text-align: center; }
-    .container { max-width: 960px; margin: auto; padding: 20px; }
-    .drop-zone { border: 2px dashed #ccc; padding: 40px; text-align: center; background: #fff; margin-bottom: 20px; cursor: pointer; border-radius: 10px; }
+    body { font-family: Arial, sans-serif; background: #eef3f1; padding: 20px; }
+    .container { background: white; max-width: 800px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #297373; }
+    input[type=file] { margin: 20px 0; }
+    #report { margin-top: 30px; display: none; }
     iframe { width: 100%; height: 1000px; border: none; margin-top: 20px; }
-    button { margin-top: 10px; padding: 10px 20px; font-size: 16px; background: #297373; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    .qr-code { margin-top: 20px; text-align: center; }
+    button { background-color: #297373; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
+    button:hover { background-color: #215e5a; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Valenveras Cannabis Report Tool</h1>
-  </header>
   <div class="container">
-    <div class="drop-zone" id="drop-zone">
-      <p>Drag & Drop your CSV file here or click to upload</p>
-      <input type="file" id="file-input" accept=".csv" style="display: none;">
+    <h1>Valenveras Cannabis Report Tool</h1>
+    <img src="data:image/jpeg;base64,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" alt="Valenveras Logo" style="height:80px;margin-bottom:20px;">
+    <p>Select a CSV file with lab results to generate the styled report.</p>
+    
+    <label><strong>Upload Report CSV:</strong></label><br>
+    <input type="file" id="csvFile" accept=".csv" /><br><br>
+    <label><strong>Upload Customer Logo (optional):</strong></label><br>
+    <input type="file" id="customerLogo" accept="image/*" />
+    
+    <button onclick="generateReport()">Generate Report</button>
+    <div id="report">
+      <h2>Preview:</h2>
+      <iframe id="reportFrame"></iframe>
+      <button onclick="downloadHTML()">Download HTML</button>
     </div>
-    <button id="download-html">Download HTML</button>
-    <button id="download-pdf">Download PDF</button>
-    <div id="preview"></div>
-    <div class="qr-code" id="qr-code"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const preview = document.getElementById('preview');
-    const qrCodeContainer = document.getElementById('qr-code');
-    const htmlDownloadBtn = document.getElementById('download-html');
-    const pdfDownloadBtn = document.getElementById('download-pdf');
+    let templateHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cannabis Test Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; background-color: #f7f7f7; color: #333; }
+    .container { background: white; max-width: 900px; margin: auto; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #2a7d6a; }
+    h2 { border-bottom: 2px solid #2a7d6a; padding-bottom: 5px; margin-top: 40px; }
+    .section p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #e0f1ed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CANNABIS TEST REPORT</h1>
+    <p>By kim@valenveras.com</p>
+    <p>Date: 02-Jul-2025</p>
 
-    const githubBaseUrl = 'https://kimvalenveras.github.io/cannabis-report-tool';
+    <h2>Sample Information</h2>
+    <div class="section">
+      <p><strong>Sample ID:</strong> El Dorado test</p>
+      <p><strong>Sample Name:</strong> El Dorado test</p>
+      <p><strong>Material Name:</strong> Cannabis Analysis by Valenveras</p>
+      <p><strong>Harvest Date:</strong> --</p>
+      <p><strong>Plant Type:</strong> --</p>
+      <p><strong>Flowering Time:</strong> --</p>
+      <p><strong>Company:</strong> Valenveras Demo</p>
+      <p><strong>Created On Behalf of:</strong> --</p>
+      <p><strong>Device ID:</strong> NeoScanner_25020032</p>
+      <p><strong>Lot Name:</strong> --</p>
+      <p><strong>Supplier Name:</strong> --</p>
+      <p><strong>Location:</strong> 52.3066404, 4.9394857</p>
+    </div>
 
-    const template = `
-      <h2>CANNABIS TEST REPORT</h2>
-      <p>By {{CreatedBy}}</p>
-      <p>{{CreatedAt}}</p>
+    <h2>Cannabinoids</h2>
+    <table>
+      <tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr>
+      <tr><td>THC Total</td><td>22.77</td><td>0.00 - 29.00</td></tr>
+      <tr><td>THCa</td><td>24.59</td><td>0.00 - 100.00</td></tr>
+      <tr><td>CBD Total</td><td>0.3</td><td>0.0 - 30.0</td></tr>
+      <tr><td>CBDa</td><td>0.3</td><td>0.0 - 100.0</td></tr>
+      <tr><td>CBG Total</td><td>0.7</td><td>0.0 - 2.5</td></tr>
+      <tr><td>Total Terpenes</td><td>1.38</td><td>0.00 - 3.00</td></tr>
+    </table>
 
-      <h3>Sample Information</h3>
-      <p><strong>Sample ID:</strong> {{SampleID}}</p>
-      <p><strong>Sample Name:</strong> {{SampleName}}</p>
-      <p><strong>Material Name:</strong> {{MaterialName}}</p>
-      <p><strong>Harvest Date:</strong> {{HarvestDate}}</p>
-      <p><strong>Plant Type:</strong> {{PlantType}}</p>
-      <p><strong>Flowering Time:</strong> {{FloweringTime}}</p>
-      <p><strong>Company:</strong> {{Company}}</p>
-      <p><strong>Created On Behalf of:</strong> {{CreatedOnBehalf}}</p>
-      <p><strong>Device ID:</strong> {{DeviceID}}</p>
-      <p><strong>Lot Name:</strong> {{LotName}}</p>
-      <p><strong>Supplier Name:</strong> {{SupplierName}}</p>
-      <p><strong>Location:</strong> {{Location}}</p>
+    <h2>Terpenes</h2>
+    <table>
+      <tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr>
+      <tr><td>Limonene</td><td>0.02</td><td>0.00 - 3.00</td></tr>
+      <tr><td>B-Caryophyllene</td><td>0</td><td>0.00 - 2.00</td></tr>
+      <tr><td>G-Elemene</td><td>0</td><td>0.00 - 0.80</td></tr>
+      <tr><td>B-Myrcene</td><td>0</td><td>0.00 - 10.00</td></tr>
+      <tr><td>Linalool</td><td>0.02</td><td>0.00 - 1.00</td></tr>
+      <tr><td>A-Humulene</td><td>0</td><td>0.00 - 0.50</td></tr>
+      <tr><td>Eudesma</td><td>0</td><td>0.00 - 1.00</td></tr>
+      <tr><td>B-Pinene</td><td>0</td><td>0.00 - 0.10</td></tr>
+      <tr><td>A-Pinene</td><td>0</td><td>0.00 - 0.30</td></tr>
+      <tr><td>Terpinolene</td><td>0</td><td>0.00 - 0.20</td></tr>
+    </table>
 
-      <h3>Cannabinoids</h3>
-      <table>
-        <tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Range</th></tr>
-        <tr><td>THC Total</td><td>{{THCTotal}}</td><td>%</td><td>{{THCTotalRange}}</td></tr>
-        <tr><td>THCa</td><td>{{THCa}}</td><td>%</td><td>{{THCaRange}}</td></tr>
-        <tr><td>CBD Total</td><td>{{CBDTotal}}</td><td>%</td><td>{{CBDTotalRange}}</td></tr>
-        <tr><td>CBDa</td><td>{{CBDa}}</td><td>%</td><td>{{CBDaRange}}</td></tr>
-        <tr><td>CBG Total</td><td>{{CBGTotal}}</td><td>%</td><td>{{CBGTotalRange}}</td></tr>
-        <tr><td>Total Terpenes</td><td>{{TotalTerpenes}}</td><td>%</td><td>{{TotalTerpenesRange}}</td></tr>
-      </table>
+    <h2>Moisture & aW</h2>
+    <p><strong>Moisture:</strong> 13%</p>
+    <p><strong>aW:</strong> 0.43</p>
 
-      <h3>Terpenes</h3>
-      <table>
-        <tr><td>Limonene</td><td>{{Limonene}}%</td><td>{{LimoneneRange}}</td></tr>
-        <tr><td>B-Caryophyllene</td><td>{{BCaryophyllene}}%</td><td>{{BCaryophylleneRange}}</td></tr>
-        <tr><td>g-Elemene</td><td>{{GElemene}}%</td><td>{{GElemeneRange}}</td></tr>
-        <tr><td>B-Myrcene</td><td>{{BMyrcene}}%</td><td>{{BMyrceneRange}}</td></tr>
-        <tr><td>Linalool</td><td>{{Linalool}}%</td><td>{{LinaloolRange}}</td></tr>
-        <tr><td>A-Humulene</td><td>{{AHumulene}}%</td><td>{{AHumuleneRange}}</td></tr>
-        <tr><td>Eudesma</td><td>{{Eudesma}}%</td><td>{{EudesmaRange}}</td></tr>
-        <tr><td>B-Pinene</td><td>{{BPinene}}%</td><td>{{BPineneRange}}</td></tr>
-        <tr><td>A-Pinene</td><td>{{APinene}}%</td><td>{{APineneRange}}</td></tr>
-        <tr><td>Terpinolene</td><td>{{Terpinolene}}%</td><td>{{TerpinoleneRange}}</td></tr>
-      </table>
+    <h2>Disclaimer</h2>
+    <p>This test result is intended to provide indicative information about the composition of cannabis. The results are not certified and cannot be used for legal, medical, or commercial purposes.</p>
+  </div>
+</body>
+</html>
+`; // will be filled later
 
-      <h3>Moisture Content</h3>
-      <p>Moisture: {{Moisture}}%</p>
-      <p>aW: {{aW}}</p>
-
-      <h4>Disclaimer</h4>
-      <p>This test result is intended to provide indicative information about the composition of cannabis. The results are not certified and cannot be used for legal, medical, or commercial purposes.</p>
-    `;
-
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#297373'; });
-    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#ccc'; });
-    dropZone.addEventListener('drop', e => {
-      e.preventDefault(); dropZone.style.borderColor = '#ccc';
-      handleFile(e.dataTransfer.files[0]);
-    });
-    fileInput.addEventListener('change', e => { handleFile(e.target.files[0]); });
-
-    function handleFile(file) {
-      if (!file.name.endsWith('.csv')) return alert('Only CSV files are supported.');
-      Papa.parse(file, {
-        header: true,
-        complete: function(results) {
-          const data = results.data[0];
-          generateHTML(data);
-        }
-      });
+    function parseCSV(csvText) {
+      const rows = csvText.trim().split('\n');
+      const headers = rows[0].split(',').map(h => h.trim());
+      const values = rows[1].split(',').map(v => v.trim());
+      const data = {};
+      headers.forEach((h, i) => { data[h] = values[i] || ''; });
+      return data;
     }
 
-    function generateHTML(data) {
-      let html = template;
-      Object.keys(data).forEach(key => {
-        const regex = new RegExp(`{{\s*${key}\s*}}`, 'g');
-        html = html.replace(regex, data[key]);
-      });
-      preview.innerHTML = `<iframe srcdoc="${html.replace(/"/g, '&quot;')}"></iframe>`;
-      htmlDownloadBtn.onclick = () => downloadHTML(html);
-      pdfDownloadBtn.onclick = () => downloadPDF(html);
-      generateQR();
+    function fillTemplate(template, data) {
+      return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || '');
     }
 
-    function downloadHTML(html) {
-      const blob = new Blob([html], { type: 'text/html' });
+    function generateReport() {
+      const fileInput = document.getElementById('csvFile');
+      const file = fileInput.files[0];
+      if (!file) return alert('Please select a CSV file first.');
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        const parsedData = parseCSV(csvText);
+        const filled = fillTemplate(templateHTML, parsedData);
+        const blob = new Blob([filled], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+      const logoInput = document.getElementById('customerLogo');
+      if (logoInput.files.length > 0) {
+        const logoReader = new FileReader();
+        logoReader.onload = function(event) {
+          const logoBase64 = event.target.result;
+          const logoTag = '<img src="' + logoBase64 + '" alt="Customer Logo" style="max-height:80px;margin-top:20px;">';
+          const final = filled.replace('</h1>', '</h1>' + logoTag);
+          injectFinalReport(final);
+        };
+        logoReader.readAsDataURL(logoInput.files[0]);
+      } else {
+        injectFinalReport(filled);
+      }
+
+      function injectFinalReport(html) {
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('reportFrame').src = url;
+        document.getElementById('report').style.display = 'block';
+        window.reportHTML = html;
+      }
+    
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadHTML() {
+      const blob = new Blob([window.reportHTML], { type: 'text/html' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'cannabis-report.html';
+      a.download = 'cannabis_report.html';
       a.click();
-    }
-
-    function downloadPDF(html) {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      iframe.srcdoc = html;
-      iframe.onload = () => {
-        html2pdf().from(iframe.contentDocument.body).save('cannabis-report.pdf');
-        document.body.removeChild(iframe);
-      };
-    }
-
-    function generateQR() {
-      const url = `${githubBaseUrl}/cannabis-report.html`;
-      qrCodeContainer.innerHTML = '';
-      QRCode.toCanvas(document.createElement('canvas'), url, (err, canvas) => {
-        if (!err) qrCodeContainer.appendChild(canvas);
-      });
     }
   </script>
 </body>
