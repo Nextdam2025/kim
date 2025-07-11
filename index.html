@@ -1,174 +1,300 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cannabis Report Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Cannabis Test Report</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #eef3f1; padding: 20px; }
-    .container { background: white; max-width: 800px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #297373; }
-    input[type=file] { margin: 20px 0; }
-    #report { margin-top: 30px; display: none; }
-    iframe { width: 100%; height: 1000px; border: none; margin-top: 20px; }
-    button { background-color: #297373; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
-    button:hover { background-color: #215e5a; }
+    :root {
+      --primary: #2a7d6a;
+      --secondary: #e0f1ed;
+      --accent: #297373;
+      --bg-light: #f7f7f7;
+      --text-dark: #333;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 10px;
+    }
+    .header img.logo {
+      height: 60px;
+    }
+    .header img.customer-logo {
+      height: 50px;
+      margin-left: 15px;
+    }
+    .header h1 {
+      font-size: 2rem;
+      color: var(--primary);
+      margin: 0;
+    }
+    .upload-section {
+      margin: 20px 0;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .upload-section label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .upload-section input[type=file] {
+      width: 100%;
+      padding: 8px;
+      border: 2px dashed var(--secondary);
+      border-radius: 8px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+    #generateBtn, #downloadBtn {
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+    #generateBtn:hover, #downloadBtn:hover {
+      background-color: var(--primary);
+    }
+    .report-container {
+      margin-top: 30px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);}  
+    }
+    .report-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      background: var(--secondary);
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .report-header .field {
+      font-size: 0.9rem;
+    }
+    .section {
+      margin-top: 40px;
+    }
+    .section h2 {
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: var(--secondary);
+      font-weight: bold;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-top: 20px;
+    }
+    .disclaimer {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Valenveras Cannabis Report Tool</h1>
-    <img src="data:image/jpeg;base64,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" alt="Valenveras Logo" style="height:80px;margin-bottom:20px;">
-    <p>Select a CSV file with lab results to generate the styled report.</p>
-    
-    <label><strong>Upload Report CSV:</strong></label><br>
-    <input type="file" id="csvFile" accept=".csv" /><br><br>
-    <label><strong>Upload Customer Logo (optional):</strong></label><br>
-    <input type="file" id="customerLogo" accept="image/*" />
-    
-    <button onclick="generateReport()">Generate Report</button>
-    <div id="report">
-      <h2>Preview:</h2>
-      <iframe id="reportFrame"></iframe>
-      <button onclick="downloadHTML()">Download HTML</button>
+    <div class="header">
+      <h1>CANNABIS TEST REPORT</h1>
+      <img src="data:image/jpeg;base64,/9j/..." class="logo" alt="Valenveras Logo">
+    </div>
+    <div class="upload-section">
+      <div style="flex:1 1 300px;">
+        <label for="csvFile">Lab Results CSV</label>
+        <input type="file" id="csvFile" accept=".csv">
+      </div>
+      <div style="flex:1 1 300px;">
+        <label for="customerLogo">Customer Logo (optional)</label>
+        <input type="file" id="customerLogo" accept="image/*">
+      </div>
+    </div>
+    <button id="generateBtn">Generate Report</button>
+
+    <div id="report" class="report-container" style="display:none;">
+      <div class="report-header" id="sampleInfo"></div>
+
+      <div class="section" id="cannabinoidsSection">
+        <h2>Cannabinoids Profile</h2>
+        <table id="cannabinoidsTable">
+          <thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="chart-container"><canvas id="cannabinoidChart"></canvas></div>
+      </div>
+
+      <div class="section" id="terpenesSection">
+        <h2>Terpenes Profile</h2>
+        <table id="terpenesTable">
+          <thead><tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="chart-container"><canvas id="terpeneChart"></canvas></div>
+      </div>
+
+      <div class="section" id="moistureSection">
+        <h2>Moisture &amp; Water Activity</h2>
+        <p><strong>Moisture:</strong> <span id="moisture"></span></p>
+        <p><strong>aW:</strong> <span id="aw"></span></p>
+      </div>
+
+      <button id="downloadBtn">Download Full Report</button>
+      <p class="disclaimer">This is an indicative report. Not certified for legal or medical use.</p>
     </div>
   </div>
 
   <script>
-    let templateHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Cannabis Test Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 40px; background-color: #f7f7f7; color: #333; }
-    .container { background: white; max-width: 900px; margin: auto; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #2a7d6a; }
-    h2 { border-bottom: 2px solid #2a7d6a; padding-bottom: 5px; margin-top: 40px; }
-    .section p { margin: 6px 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #e0f1ed; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>CANNABIS TEST REPORT</h1>
-    <p>By kim@valenveras.com</p>
-    <p>Date: 02-Jul-2025</p>
-
-    <h2>Sample Information</h2>
-    <div class="section">
-      <p><strong>Sample ID:</strong> El Dorado test</p>
-      <p><strong>Sample Name:</strong> El Dorado test</p>
-      <p><strong>Material Name:</strong> Cannabis Analysis by Valenveras</p>
-      <p><strong>Harvest Date:</strong> --</p>
-      <p><strong>Plant Type:</strong> --</p>
-      <p><strong>Flowering Time:</strong> --</p>
-      <p><strong>Company:</strong> Valenveras Demo</p>
-      <p><strong>Created On Behalf of:</strong> --</p>
-      <p><strong>Device ID:</strong> NeoScanner_25020032</p>
-      <p><strong>Lot Name:</strong> --</p>
-      <p><strong>Supplier Name:</strong> --</p>
-      <p><strong>Location:</strong> 52.3066404, 4.9394857</p>
-    </div>
-
-    <h2>Cannabinoids</h2>
-    <table>
-      <tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr>
-      <tr><td>THC Total</td><td>22.77</td><td>0.00 - 29.00</td></tr>
-      <tr><td>THCa</td><td>24.59</td><td>0.00 - 100.00</td></tr>
-      <tr><td>CBD Total</td><td>0.3</td><td>0.0 - 30.0</td></tr>
-      <tr><td>CBDa</td><td>0.3</td><td>0.0 - 100.0</td></tr>
-      <tr><td>CBG Total</td><td>0.7</td><td>0.0 - 2.5</td></tr>
-      <tr><td>Total Terpenes</td><td>1.38</td><td>0.00 - 3.00</td></tr>
-    </table>
-
-    <h2>Terpenes</h2>
-    <table>
-      <tr><th>Parameter</th><th>Result (%)</th><th>Range</th></tr>
-      <tr><td>Limonene</td><td>0.02</td><td>0.00 - 3.00</td></tr>
-      <tr><td>B-Caryophyllene</td><td>0</td><td>0.00 - 2.00</td></tr>
-      <tr><td>G-Elemene</td><td>0</td><td>0.00 - 0.80</td></tr>
-      <tr><td>B-Myrcene</td><td>0</td><td>0.00 - 10.00</td></tr>
-      <tr><td>Linalool</td><td>0.02</td><td>0.00 - 1.00</td></tr>
-      <tr><td>A-Humulene</td><td>0</td><td>0.00 - 0.50</td></tr>
-      <tr><td>Eudesma</td><td>0</td><td>0.00 - 1.00</td></tr>
-      <tr><td>B-Pinene</td><td>0</td><td>0.00 - 0.10</td></tr>
-      <tr><td>A-Pinene</td><td>0</td><td>0.00 - 0.30</td></tr>
-      <tr><td>Terpinolene</td><td>0</td><td>0.00 - 0.20</td></tr>
-    </table>
-
-    <h2>Moisture & aW</h2>
-    <p><strong>Moisture:</strong> 13%</p>
-    <p><strong>aW:</strong> 0.43</p>
-
-    <h2>Disclaimer</h2>
-    <p>This test result is intended to provide indicative information about the composition of cannabis. The results are not certified and cannot be used for legal, medical, or commercial purposes.</p>
-  </div>
-</body>
-</html>
-`; // will be filled later
-
-    function parseCSV(csvText) {
-      const rows = csvText.trim().split('\n');
-      const headers = rows[0].split(',').map(h => h.trim());
-      const values = rows[1].split(',').map(v => v.trim());
+    // Parse CSV, strip quotes/newlines
+    function parseCSV(text) {
+      const [headerLine, dataLine] = text.trim().split(/\r?\n/);
+      const headers = headerLine.replace(/"/g, '').split(',');
+      const values = dataLine.replace(/"/g, '').split(',');
       const data = {};
-      headers.forEach((h, i) => { data[h] = values[i] || ''; });
+      headers.forEach((h,i) => data[h.trim()] = values[i] ? values[i].trim() : '');
       return data;
     }
 
-    function fillTemplate(template, data) {
-      return template.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || '');
+    // Sample info mapping
+    const sampleMapping = [
+      { label: 'Sample Name', key: 'Sample Name' },
+      { label: 'Created At', key: 'Created At (UTC)' },
+      { label: 'Device ID', key: 'Device ID' },
+      { label: 'Created By', key: 'Created By' },
+      { label: 'On Behalf', key: 'On Behalf' },
+      { label: 'Lots Name', key: 'Lots Name' }
+    ];
+
+    // Cannabinoid and terpene definitions
+    const cannabinoidParams = [
+      { key: 'THC Total (%)', name: 'THC Total', range: '0.00 - 29.00' },
+      { key: 'THCa(%)', name: 'THCa', range: '0.00 - 100.00' },
+      { key: 'CBD Total (%)', name: 'CBD Total', range: '0.00 - 30.00' },
+      { key: 'CBDa(%)', name: 'CBDa', range: '0.00 - 100.00' },
+      { key: 'CBG Total(%)', name: 'CBG Total', range: '0.00 - 2.50' },
+      { key: 'Total Terpenes(%)', name: 'Total Terpenes', range: '0.00 - 3.00' }
+    ];
+    const terpeneParams = [
+      { key: 'Limonene(%)', name: 'Limonene', range: '0.00 - 3.00' },
+      { key: 'B-Caryophyllene(%)', name: 'B-Caryophyllene', range: '0.00 - 2.00' },
+      { key: 'G-elemene(%)', name: 'G-Elemene', range: '0.00 - 0.80' },
+      { key: 'B-Mircene(%)', name: 'B-Myrcene', range: '0.00 - 10.00' },
+      { key: 'Linalool(%)', name: 'Linalool', range: '0.00 - 1.00' },
+      { key: 'A-Humulene(%)', name: 'A-Humulene', range: '0.00 - 0.50' },
+      { key: 'Eudesma(%)', name: 'Eudesma', range: '0.00 - 1.00' },
+      { key: 'B-Pinene(%)', name: 'B-Pinene', range: '0.00 - 0.10' },
+      { key: 'A-Pinene(%)', name: 'A-Pinene', range: '0.00 - 0.30' },
+      { key: 'Terpinolene(%)', name: 'Terpinolene', range: '0.00 - 0.20' }
+    ];
+
+    // Populate sample info
+    function populateSampleInfo(data) {
+      const container = document.getElementById('sampleInfo');
+      container.innerHTML = sampleMapping.map(item => `
+        <div class="field"><strong>${item.label}:</strong> ${data[item.key]||'--'}</div>
+      `).join('');
     }
 
-    function generateReport() {
-      const fileInput = document.getElementById('csvFile');
-      const file = fileInput.files[0];
-      if (!file) return alert('Please select a CSV file first.');
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const csvText = e.target.result;
-        const parsedData = parseCSV(csvText);
-        const filled = fillTemplate(templateHTML, parsedData);
-        const blob = new Blob([filled], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        
-      const logoInput = document.getElementById('customerLogo');
-      if (logoInput.files.length > 0) {
-        const logoReader = new FileReader();
-        logoReader.onload = function(event) {
-          const logoBase64 = event.target.result;
-          const logoTag = '<img src="' + logoBase64 + '" alt="Customer Logo" style="max-height:80px;margin-top:20px;">';
-          const final = filled.replace('</h1>', '</h1>' + logoTag);
-          injectFinalReport(final);
-        };
-        logoReader.readAsDataURL(logoInput.files[0]);
-      } else {
-        injectFinalReport(filled);
-      }
+    // Fill table rows
+    function fillTable(tableId, rows) {
+      document.querySelector(`${tableId} tbody`).innerHTML = rows.map(r => `
+        <tr><td>${r.name}</td><td>${r.value}</td><td>${r.range}</td></tr>
+      `).join('');
+    }
 
-      function injectFinalReport(html) {
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        document.getElementById('reportFrame').src = url;
+    // Create bar chart
+    function createBarChart(canvasId, labels, values, title) {
+      new Chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: title, data: values.map(v => parseFloat(v)||0), backgroundColor: 'rgba(42,125,106,0.7)' }] },
+        options: { responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title } } }
+      });
+    }
+
+    // Generate report handler
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const file = document.getElementById('csvFile').files[0];
+      if (!file) return alert('Select a lab results CSV file.');
+      const reader = new FileReader();
+      reader.onload = e => {
+        const data = parseCSV(e.target.result);
+        // Sample info
+        populateSampleInfo(data);
+        // Cannabinoids
+        const canRows = cannabinoidParams.map(p => ({ name: p.name, value: data[p.key]||'0', range: p.range }));
+        fillTable('#cannabinoidsTable', canRows);
+        createBarChart('cannabinoidChart', canRows.map(r=>r.name), canRows.map(r=>r.value), 'Cannabinoids (%)');
+        // Terpenes
+        const terpRows = terpeneParams.map(p => ({ name: p.name, value: data[p.key]||'0', range: p.range }));
+        fillTable('#terpenesTable', terpRows);
+        createBarChart('terpeneChart', terpRows.map(r=>r.name), terpRows.map(r=>r.value), 'Terpenes (%)');
+        // Moisture & aW
+        document.getElementById('moisture').textContent = data['Moisture(%)'] ? data['Moisture(%)'] + '%' : '--';
+        document.getElementById('aw').textContent = data['aW(%)'] || '--';
+        // Optional customer logo
+        const logoFile = document.getElementById('customerLogo').files[0];
+        if (logoFile) {
+          const lr = new FileReader(); lr.onload = ev => {
+            const img = document.createElement('img'); img.src = ev.target.result;
+            img.className = 'customer-logo'; document.querySelector('.header').appendChild(img);
+          };
+          lr.readAsDataURL(logoFile);
+        }
         document.getElementById('report').style.display = 'block';
-        window.reportHTML = html;
-      }
-    
+        // Save snapshot for download
+        window.reportHTML = '<!DOCTYPE html>' + document.documentElement.outerHTML;
       };
       reader.readAsText(file);
-    }
+    });
 
-    function downloadHTML() {
+    // Download handler
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      if (!window.reportHTML) return;
       const blob = new Blob([window.reportHTML], { type: 'text/html' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'cannabis_report.html';
-      a.click();
-    }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'cannabis_report.html'; a.click();
+    });
   </script>
 </body>
 </html>
